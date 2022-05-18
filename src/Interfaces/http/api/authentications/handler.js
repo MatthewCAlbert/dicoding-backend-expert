@@ -6,25 +6,26 @@ class AuthenticationsHandler {
   constructor(container) {
     this._container = container;
 
-    this.postAuthenticationHandler = this.postAuthenticationHandler.bind(this);
-    this.putAuthenticationHandler = this.putAuthenticationHandler.bind(this);
-    this.deleteAuthenticationHandler = this.deleteAuthenticationHandler.bind(this);
+    this.addOne = this.addOne.bind(this);
+    this.updateOne = this.updateOne.bind(this);
+    this.deleteOne = this.deleteOne.bind(this);
   }
 
-  async postAuthenticationHandler(request) {
+  async addOne(request, h) {
     const loginUserUseCase = this._container.getInstance(LoginUserUseCase.name);
     const { accessToken, refreshToken } = await loginUserUseCase.execute(request.payload);
-    return {
-      code: 201,
+    const response = h.response({
       status: 'success',
       data: {
         accessToken,
         refreshToken,
       },
-    };
+    });
+    response.code(201);
+    return response;
   }
 
-  async putAuthenticationHandler(request) {
+  async updateOne(request) {
     const refreshAuthenticationUseCase = this._container
       .getInstance(RefreshAuthenticationUseCase.name);
     const accessToken = await refreshAuthenticationUseCase.execute(request.payload);
@@ -37,7 +38,7 @@ class AuthenticationsHandler {
     };
   }
 
-  async deleteAuthenticationHandler(request) {
+  async deleteOne(request) {
     const logoutUserUseCase = this._container.getInstance(LogoutUserUseCase.name);
     await logoutUserUseCase.execute(request.payload);
     return {

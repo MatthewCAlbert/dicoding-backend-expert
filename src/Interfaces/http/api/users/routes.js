@@ -1,11 +1,9 @@
-const { routeHandlerMapper } = require('../../api/ApiHandler');
-
-const routes = (handler) => ([
+const routes = (usersHandler) => ([
   {
     method: 'POST',
     path: '/users',
-    handler: handler.postUserHandler,
+    handler: usersHandler.addOne,
   },
-].map(routeHandlerMapper));
+]);
 
 module.exports = routes;
