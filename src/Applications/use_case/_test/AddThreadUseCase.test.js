@@ -15,7 +15,7 @@ describe('AddThreadUseCase', () => {
       body: 'Isi konten',
     };
     const expectedThreadResult = new ExistingThread({
-      ...useCasePayload, createdAt: '', updatedAt: '', id: 'thread-xxx'
+      ...useCasePayload, createdAt: '', updatedAt: '', id: 'thread-xxx',
     });
 
     /** creating dependency of use case */

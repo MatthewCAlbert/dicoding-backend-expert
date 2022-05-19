@@ -9,7 +9,7 @@ describe('GetThreadUseCase', () => {
   it('should orchestrating the add user action correctly', async () => {
     // Arrange
     const useCasePayload = {
-      id: 'thread-xxx'
+      id: 'thread-xxx',
     };
     const expectedThreadResult = new ExistingThread({
       ...useCasePayload, comments: [], body: 'ini body', owner: 'user-xxx', title: 'Judul',

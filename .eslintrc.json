@@ -16,6 +16,24 @@
         "no-console": "off",
         "function-paren-newline": "off",
         "class-methods-use-this": "off",
-        "no-unused-vars": "warn"
-    }
+        "no-unused-vars": "off"
+    },
+    "overrides": [
+      {
+        "files": [
+            "**/tests/*",
+            "**/_test/*"
+        ],
+        "env": {
+          "jest": true // now **/*.test.js files' env has both es6 *and* jest
+        },
+        "plugins": ["jest"],
+        "rules": {
+          "jest/no-disabled-tests": "warn",
+          "jest/no-focused-tests": "error",
+          "jest/no-identical-title": "error",
+          "jest/prefer-to-have-length": "warn"
+        }
+      }
+    ]
 }

@@ -3,7 +3,8 @@ class ExistingThread {
     this._verifyPayload(payload);
 
     const {
-      id, title, body, owner, createdAt, comments, username,
+      id, title, body, owner, createdAt, username,
+      rawComments, rawReplies,
     } = payload;
 
     this.id = id;
@@ -12,17 +13,33 @@ class ExistingThread {
     this.owner = owner;
     this.username = username;
     this.date = createdAt;
-    this.comments = comments || [];
+    this.comments = rawComments?.map((comment) => {
+      const replies = rawReplies
+        ?.filter((reply) => reply.commentId === comment.id)
+        ?.map((reply) => ({
+          id: reply.id,
+          username: reply.username,
+          date: reply.date,
+          content: reply.deletedAt === null ? reply.content : '**balasan telah dihapus**',
+        }));
+      return {
+        id: comment.id,
+        username: comment.username,
+        date: comment.date,
+        content: comment.deletedAt === null ? comment.content : '**komentar telah dihapus**',
+        replies: replies || [],
+      };
+    }) || [];
   }
 
   _verifyPayload({
-    id, title, body, owner, comments = [],
+    id, title, body, owner,
   }) {
-    if (!id || !title || !body || !owner || !comments) {
+    if (!id || !title || !body || !owner) {
       throw new Error('EXISTING_THREAD.NOT_CONTAIN_NEEDED_PROPERTY');
     }
 
-    if (typeof id !== 'string' || typeof title !== 'string' || typeof body !== 'string' || typeof owner !== 'string' || typeof comments !== 'object') {
+    if (typeof id !== 'string' || typeof title !== 'string' || typeof body !== 'string' || typeof owner !== 'string') {
       throw new Error('EXISTING_THREAD.NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
   }

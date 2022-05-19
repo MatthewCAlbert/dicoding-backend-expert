@@ -1,3 +1,4 @@
+const { nanoid } = require('nanoid');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const ThreadTableTestHelper = require('../../../../tests/ThreadTableTestHelper');
 const ThreadCommentTableTestHelper = require('../../../../tests/ThreadCommentTableTestHelper');
@@ -10,27 +11,22 @@ const NewThreadCommentReply = require('../../../Domains/threads/entities/NewThre
 const ExistingThread = require('../../../Domains/threads/entities/ExistingThread');
 const pool = require('../../database/postgres/pool');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
-const { nanoid } = require('nanoid');
-
 
 describe('ThreadRepositoryPostgres', () => {
-  afterEach(async () => {
-  });
-
   const user = {
     id: 'user-1234567',
     username: 'matthew',
     password: 'secret',
-    fullname: "Matthew C."
-  }
+    fullname: 'Matthew C.',
+  };
 
   const sampleThread = {
     title: 'Title 1',
     body: 'Body 1',
-    owner: user.id
-  }
+    owner: user.id,
+  };
 
-  beforeAll(async ()=> {
+  beforeAll(async () => {
     await ThreadCommentReplyTableTestHelper.cleanTable();
     await ThreadCommentTableTestHelper.cleanTable();
     await ThreadTableTestHelper.cleanTable();
@@ -45,7 +41,7 @@ describe('ThreadRepositoryPostgres', () => {
     await UsersTableTestHelper.cleanTable();
     await pool.end();
   });
-  
+
   describe('addOne function', () => {
     it('should add one thread to database', async () => {
       // Arrange
@@ -82,14 +78,14 @@ describe('ThreadRepositoryPostgres', () => {
         await threadRepository.checkOneById('thread-xxx');
       })
         .rejects
-        .toThrow(NotFoundError)
+        .toThrow(NotFoundError);
     });
   });
 
   const sampleThreadComment = {
     owner: user.id,
-    content: 'Ini komentar'
-  }
+    content: 'Ini komentar',
+  };
 
   describe('addOneComment function', () => {
     it('should add one thread comment to database', async () => {
@@ -97,7 +93,8 @@ describe('ThreadRepositoryPostgres', () => {
       const threadRepository = new ThreadRepositoryPostgres(pool, nanoid);
 
       // Action
-      const { id } = await threadRepository.addOneComment(new NewThreadComment({...sampleThreadComment, thread: sampleThread.id}));
+      const { id } = await threadRepository
+        .addOneComment(new NewThreadComment({ ...sampleThreadComment, thread: sampleThread.id }));
       sampleThreadComment.id = id;
 
       // Assert
@@ -124,10 +121,10 @@ describe('ThreadRepositoryPostgres', () => {
 
       // Action & Assert
       expect(async () => {
-        await threadRepository.checkOneCommentById('comment-xxx')
+        await threadRepository.checkOneCommentById('comment-xxx');
       })
         .rejects
-        .toThrow(NotFoundError)
+        .toThrow(NotFoundError);
     });
   });
 
@@ -150,14 +147,14 @@ describe('ThreadRepositoryPostgres', () => {
         await threadRepository.checkCommentOwnership(sampleThreadComment.id, 'user-xxx');
       })
         .rejects
-        .toThrow(AuthorizationError)
+        .toThrow(AuthorizationError);
     });
   });
 
   const sampleThreadCommentReply = {
     owner: user.id,
-    content: 'Ini balasan komentar'
-  }
+    content: 'Ini balasan komentar',
+  };
 
   describe('addOneCommentReply function', () => {
     it('should add one thread comment reply to database', async () => {
@@ -166,7 +163,7 @@ describe('ThreadRepositoryPostgres', () => {
 
       // Action
       const { id } = await threadRepository.addOneCommentReply(new NewThreadCommentReply({
-        ...sampleThreadCommentReply, comment: sampleThreadComment.id, thread: sampleThread.id
+        ...sampleThreadCommentReply, comment: sampleThreadComment.id, thread: sampleThread.id,
       }));
       sampleThreadCommentReply.id = id;
 
@@ -194,10 +191,10 @@ describe('ThreadRepositoryPostgres', () => {
 
       // Action & Assert
       expect(async () => {
-        await threadRepository.checkOneCommentReplyById('reply-xxx')
+        await threadRepository.checkOneCommentReplyById('reply-xxx');
       })
         .rejects
-        .toThrow(NotFoundError)
+        .toThrow(NotFoundError);
     });
   });
 
@@ -220,7 +217,7 @@ describe('ThreadRepositoryPostgres', () => {
         await threadRepository.checkCommentReplyOwnership(sampleThreadCommentReply.id, 'user-xxx');
       })
         .rejects
-        .toThrow(AuthorizationError)
+        .toThrow(AuthorizationError);
     });
   });
 
@@ -239,9 +236,9 @@ describe('ThreadRepositoryPostgres', () => {
       expect(thread.owner).toStrictEqual(sampleThread.owner);
       expect(thread.username).toStrictEqual(user.username);
       expect(thread).toHaveProperty('comments');
-      expect(thread.comments.length).toStrictEqual(1);
+      expect(thread.comments).toHaveLength(1);
       expect(thread.comments[0]).toHaveProperty('replies');
-      expect(thread.comments[0].replies.length).toStrictEqual(1);
+      expect(thread.comments[0].replies).toHaveLength(1);
       expect(thread).toHaveProperty('date');
     });
 
@@ -267,7 +264,8 @@ describe('ThreadRepositoryPostgres', () => {
       await threadRepository.deleteOneCommentReply(sampleThreadCommentReply.id);
 
       // Assert
-      const threadCommentReply = await ThreadCommentReplyTableTestHelper.findOneById(sampleThreadCommentReply.id);
+      const threadCommentReply = await ThreadCommentReplyTableTestHelper
+        .findOneById(sampleThreadCommentReply.id);
       expect(threadCommentReply.deletedAt).not.toBeNull();
     });
   });

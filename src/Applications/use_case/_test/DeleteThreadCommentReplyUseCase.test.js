@@ -41,7 +41,8 @@ describe('DeleteThreadCommentReplyUseCase', () => {
     expect(mockThreadRepository.checkOneById).toBeCalledWith(useCasePayload.threadId);
     expect(mockThreadRepository.checkOneCommentById).toBeCalledWith(useCasePayload.commentId);
     expect(mockThreadRepository.checkOneCommentReplyById).toBeCalledWith(useCasePayload.id);
-    expect(mockThreadRepository.checkCommentReplyOwnership).toBeCalledWith(useCasePayload.id, useCasePayload.userId);
+    expect(mockThreadRepository.checkCommentReplyOwnership)
+      .toBeCalledWith(useCasePayload.id, useCasePayload.userId);
     expect(mockThreadRepository.deleteOneCommentReply).toBeCalledWith(useCasePayload.id);
   });
 });
