@@ -82,6 +82,35 @@ describe('/threads endpoint', () => {
       expect(responseJson.data.addedThread.owner).toStrictEqual(user.id);
       sampleThread.id = responseJson.data.addedThread.id;
     });
+
+    it('should response 401 not authorized', async () => {
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: '/threads',
+        payload: sampleThread,
+      });
+      expect(response.statusCode).toEqual(401);
+    });
+
+    it('should response 400 bad payload', async () => {
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: '/threads',
+        payload: {
+          title: '',
+        },
+        auth,
+      });
+      expect(response.statusCode).toEqual(400);
+    });
   });
 
   describe('when GET /threads/{id}', () => {
@@ -107,6 +136,19 @@ describe('/threads endpoint', () => {
       expect(responseJson.data.thread.date).toBeDefined();
       expect(responseJson.data.thread.username).toStrictEqual(user.username);
       expect(responseJson.data.thread.comments).toBeDefined();
+    });
+
+    it('should response 404 not found', async () => {
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'GET',
+        url: '/threads/thread-xxx',
+        payload: sampleThread,
+      });
+      expect(response.statusCode).toEqual(404);
     });
   });
 
@@ -137,6 +179,49 @@ describe('/threads endpoint', () => {
       expect(responseJson.data.addedComment.owner).toStrictEqual(user.id);
       sampleThreadComment.id = responseJson.data.addedComment.id;
     });
+
+    it('should response 404 not found', async () => {
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: '/threads/thread-xxx/comments',
+        payload: sampleThreadComment,
+        auth,
+      });
+      expect(response.statusCode).toEqual(404);
+    });
+
+    it('should response 401 not authorized', async () => {
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: `/threads/${sampleThread.id}/comments`,
+        payload: sampleThreadComment,
+      });
+      expect(response.statusCode).toEqual(401);
+    });
+
+    it('should response 400 bad payload', async () => {
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: `/threads/${sampleThread.id}/comments`,
+        payload: {
+          content: 123,
+        },
+        auth,
+      });
+      expect(response.statusCode).toEqual(400);
+    });
   });
 
   describe('when DELETE /threads/{id}/comments/{commentId}', () => {
@@ -155,6 +240,49 @@ describe('/threads endpoint', () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(200);
       expect(responseJson.status).toEqual('success');
+    });
+
+    it('should response 404 not found', async () => {
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: '/threads/thread-xxx/comments/comment-xxx',
+        auth,
+      });
+      expect(response.statusCode).toEqual(404);
+    });
+
+    it('should response 401 not authorized', async () => {
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${sampleThread.id}/comments/${sampleThreadComment.id}`,
+      });
+      expect(response.statusCode).toEqual(401);
+    });
+
+    it('should response 403 forbidden due to different owner', async () => {
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${sampleThread.id}/comments/${sampleThreadComment.id}`,
+        auth: {
+          ...auth,
+          credentials: {
+            id: 'user-xxx',
+          },
+        },
+      });
+      expect(response.statusCode).toEqual(403);
     });
   });
 
@@ -185,6 +313,49 @@ describe('/threads endpoint', () => {
       expect(responseJson.data.addedReply.owner).toStrictEqual(user.id);
       sampleThreadCommentReply.id = responseJson.data.addedReply.id;
     });
+
+    it('should response 404 not found', async () => {
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: '/threads/thread-xxx/comments/comment-xxx/replies',
+        payload: sampleThreadCommentReply,
+        auth,
+      });
+      expect(response.statusCode).toEqual(404);
+    });
+
+    it('should response 401 not authorized', async () => {
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: `/threads/${sampleThread.id}/comments/${sampleThreadComment.id}/replies`,
+        payload: sampleThreadCommentReply,
+      });
+      expect(response.statusCode).toEqual(401);
+    });
+
+    it('should response 400 bad payload', async () => {
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: `/threads/${sampleThread.id}/comments/${sampleThreadComment.id}/replies`,
+        payload: {
+          content: 123,
+        },
+        auth,
+      });
+      expect(response.statusCode).toEqual(400);
+    });
   });
 
   describe('when DELETE /threads/{id}/comments/{commentId}/replies/{replyId}', () => {
@@ -203,6 +374,49 @@ describe('/threads endpoint', () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(200);
       expect(responseJson.status).toEqual('success');
+    });
+
+    it('should response 404 not found', async () => {
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: '/threads/thread-xxx/comments/comment-xxx/replies/reply-xxx',
+        auth,
+      });
+      expect(response.statusCode).toEqual(404);
+    });
+
+    it('should response 401 not authorized', async () => {
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${sampleThread.id}/comments/${sampleThreadComment.id}/replies/${sampleThreadCommentReply.id}`,
+      });
+      expect(response.statusCode).toEqual(401);
+    });
+
+    it('should response 403 forbidden due to different owner', async () => {
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${sampleThread.id}/comments/${sampleThreadComment.id}/replies/${sampleThreadCommentReply.id}`,
+        auth: {
+          ...auth,
+          credentials: {
+            id: 'user-xxx',
+          },
+        },
+      });
+      expect(response.statusCode).toEqual(403);
     });
   });
 });
