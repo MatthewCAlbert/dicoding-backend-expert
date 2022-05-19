@@ -6,6 +6,6 @@ By Matthew Christopher Albert
 
 - Submission 1: x May 2022
 
-## How to run
+## Information
 
-- 
+- Coverage 99.8% 👉  ... `npm run test -- --coverage`
