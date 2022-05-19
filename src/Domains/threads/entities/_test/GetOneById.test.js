@@ -16,12 +16,15 @@ describe('GetOneById entities', () => {
     const payload = {
       id: 'sample-xxx',
       userId: 'user-xxx',
-      threadId: 123445,
+      threadId: 'thread-xxx',
       commentId: 'comment-xxx'
     };
 
     // Action & Assert
-    expect(() => new GetOneById(payload)).toThrowError('GET_ONE_BY_ID.NOT_MEET_DATA_TYPE_SPECIFICATION');
+    expect(() => new GetOneById({...payload, id: 12345})).toThrowError('GET_ONE_BY_ID.NOT_MEET_DATA_TYPE_SPECIFICATION');
+    expect(() => new GetOneById({...payload, userId: 12345})).toThrowError('GET_ONE_BY_ID.NOT_MEET_DATA_TYPE_SPECIFICATION');
+    expect(() => new GetOneById({...payload, threadId: 12345})).toThrowError('GET_ONE_BY_ID.NOT_MEET_DATA_TYPE_SPECIFICATION');
+    expect(() => new GetOneById({...payload, commentId: 12345})).toThrowError('GET_ONE_BY_ID.NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 
   it('should create GetOneById entities correctly', () => {
