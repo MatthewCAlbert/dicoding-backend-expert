@@ -4,8 +4,10 @@ By Matthew Christopher Albert
 
 ## Submissions
 
-- Submission 1: x May 2022
+- Submission 1: 21 May 2022
 
-## Information
+## How to run
 
-- Coverage 99.8% 👉  ... `npm run test -- --coverage`
+- Setup `.env` and `config/database/test.json` using example provided.
+- Migrate both test and local database migration if haven't.
+- Coverage 100% 👉  on `npm run test -- --coverage`.
