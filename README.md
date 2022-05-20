@@ -4,7 +4,7 @@ By Matthew Christopher Albert
 
 ## Submissions
 
-- Submission 1: 21 May 2022
+- Submission 1: May 21, 2022
 
 ## How to run
 
