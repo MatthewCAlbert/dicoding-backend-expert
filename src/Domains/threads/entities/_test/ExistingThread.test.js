@@ -73,6 +73,26 @@ describe('ExistingThread entities', () => {
     expect(existingThread.date).toEqual(payload.createdAt);
   });
 
+  it('should create ExistingThread entities correctly with empty comments', () => {
+    // Arrange
+    const payload = { ...sampleCompleteThread };
+    delete payload.rawComments;
+    delete payload.rawReplies;
+
+    // Action
+    const existingThread = new ExistingThread(payload);
+
+    // Assert
+    expect(existingThread).toBeInstanceOf(ExistingThread);
+    expect(existingThread.id).toEqual(payload.id);
+    expect(existingThread.title).toEqual(payload.title);
+    expect(existingThread.body).toEqual(payload.body);
+    expect(existingThread.owner).toEqual(payload.owner);
+    expect(existingThread.username).toEqual(payload.username);
+    expect(existingThread.comments).toHaveLength(0);
+    expect(existingThread.date).toEqual(payload.createdAt);
+  });
+
   it('should create ExistingThread entities correctly with empty replies', () => {
     // Arrange
     const payload = { ...sampleCompleteThread };

@@ -24,7 +24,15 @@ describe('AddThreadCommentUseCase', () => {
     mockThreadRepository.checkOneById = jest.fn()
       .mockImplementation(() => Promise.resolve(useCasePayload.thread));
     mockThreadRepository.addOneComment = jest.fn()
-      .mockImplementation(() => Promise.resolve(expectedThreadResult));
+      .mockImplementation(() => Promise.resolve({
+        thread: 'thread-xxx',
+        owner: 'user-xxx',
+        content: 'Isi konten',
+        createdAt: '',
+        updatedAt: '',
+        deletedAt: '',
+        id: 'comment-xxx',
+      }));
 
     /** creating use case instance */
     const addThreadCommentUseCase = new AddThreadCommentUseCase({
