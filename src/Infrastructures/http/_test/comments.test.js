@@ -2,11 +2,10 @@ const pool = require('../../database/postgres/pool');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const ThreadTableTestHelper = require('../../../../tests/ThreadTableTestHelper');
 const ThreadCommentTableTestHelper = require('../../../../tests/ThreadCommentTableTestHelper');
-const ThreadCommentReplyTableTestHelper = require('../../../../tests/ThreadCommentReplyTableTestHelper');
 const container = require('../../container');
 const createServer = require('../createServer');
 
-describe('/threads endpoint', () => {
+describe('/threads/{id}/comments endpoint', () => {
   const user = {
     id: 'user-1234567',
     username: 'matthewca',
@@ -22,36 +21,41 @@ describe('/threads endpoint', () => {
   };
 
   const sampleThread = {
+    id: 'thread-1234567',
+    owner: user.id,
     title: 'Title 1',
     body: 'Body 1',
   };
 
   beforeAll(async () => {
-    await ThreadCommentReplyTableTestHelper.cleanTable();
     await ThreadCommentTableTestHelper.cleanTable();
     await ThreadTableTestHelper.cleanTable();
     await UsersTableTestHelper.cleanTable();
     await UsersTableTestHelper.addUser(user);
+    await ThreadTableTestHelper.addThread(sampleThread);
   });
 
   afterAll(async () => {
-    await ThreadCommentReplyTableTestHelper.cleanTable();
     await ThreadCommentTableTestHelper.cleanTable();
     await ThreadTableTestHelper.cleanTable();
     await UsersTableTestHelper.cleanTable();
     await pool.end();
   });
 
-  describe('when POST /threads', () => {
-    it('should response 201 and persisted thread', async () => {
+  const sampleThreadComment = {
+    content: 'Ini komentar',
+  };
+
+  describe('when POST /threads/{id}/comments', () => {
+    it('should response 201 and persisted thread comment', async () => {
       // eslint-disable-next-line no-undef
       const server = await createServer(container);
 
       // Action
       const response = await server.inject({
         method: 'POST',
-        url: '/threads',
-        payload: sampleThread,
+        url: `/threads/${sampleThread.id}/comments`,
+        payload: sampleThreadComment,
         auth,
       });
 
@@ -59,11 +63,25 @@ describe('/threads endpoint', () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(201);
       expect(responseJson.status).toEqual('success');
-      expect(responseJson.data.addedThread).toBeDefined();
-      expect(responseJson.data.addedThread.id).toBeDefined();
-      expect(responseJson.data.addedThread.title).toStrictEqual(sampleThread.title);
-      expect(responseJson.data.addedThread.owner).toStrictEqual(user.id);
-      sampleThread.id = responseJson.data.addedThread.id;
+      expect(responseJson.data.addedComment).toBeDefined();
+      expect(responseJson.data.addedComment.id).toBeDefined();
+      expect(responseJson.data.addedComment.content).toStrictEqual(sampleThreadComment.content);
+      expect(responseJson.data.addedComment.owner).toStrictEqual(user.id);
+      sampleThreadComment.id = responseJson.data.addedComment.id;
+    });
+
+    it('should response 404 not found', async () => {
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: '/threads/thread-xxx/comments',
+        payload: sampleThreadComment,
+        auth,
+      });
+      expect(response.statusCode).toEqual(404);
     });
 
     it('should response 401 not authorized', async () => {
@@ -73,8 +91,8 @@ describe('/threads endpoint', () => {
       // Action
       const response = await server.inject({
         method: 'POST',
-        url: '/threads',
-        payload: sampleThread,
+        url: `/threads/${sampleThread.id}/comments`,
+        payload: sampleThreadComment,
       });
       expect(response.statusCode).toEqual(401);
     });
@@ -86,9 +104,9 @@ describe('/threads endpoint', () => {
       // Action
       const response = await server.inject({
         method: 'POST',
-        url: '/threads',
+        url: `/threads/${sampleThread.id}/comments`,
         payload: {
-          title: '',
+          content: 123,
         },
         auth,
       });
@@ -96,15 +114,15 @@ describe('/threads endpoint', () => {
     });
   });
 
-  describe('when GET /threads/{id}', () => {
-    it('should response 200 and persisted thread', async () => {
+  describe('when DELETE /threads/{id}/comments/{commentId}', () => {
+    it('should response 200', async () => {
       // eslint-disable-next-line no-undef
       const server = await createServer(container);
 
       // Action
       const response = await server.inject({
-        method: 'GET',
-        url: `/threads/${sampleThread.id}`,
+        method: 'DELETE',
+        url: `/threads/${sampleThread.id}/comments/${sampleThreadComment.id}`,
         auth,
       });
 
@@ -112,13 +130,6 @@ describe('/threads endpoint', () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(200);
       expect(responseJson.status).toEqual('success');
-      expect(responseJson.data.thread).toBeDefined();
-      expect(responseJson.data.thread.id).toBeDefined();
-      expect(responseJson.data.thread.title).toStrictEqual(sampleThread.title);
-      expect(responseJson.data.thread.body).toStrictEqual(sampleThread.body);
-      expect(responseJson.data.thread.date).toBeDefined();
-      expect(responseJson.data.thread.username).toStrictEqual(user.username);
-      expect(responseJson.data.thread.comments).toBeDefined();
     });
 
     it('should response 404 not found', async () => {
@@ -127,11 +138,41 @@ describe('/threads endpoint', () => {
 
       // Action
       const response = await server.inject({
-        method: 'GET',
-        url: '/threads/thread-xxx',
-        payload: sampleThread,
+        method: 'DELETE',
+        url: '/threads/thread-xxx/comments/comment-xxx',
+        auth,
       });
       expect(response.statusCode).toEqual(404);
+    });
+
+    it('should response 401 not authorized', async () => {
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${sampleThread.id}/comments/${sampleThreadComment.id}`,
+      });
+      expect(response.statusCode).toEqual(401);
+    });
+
+    it('should response 403 forbidden due to different owner', async () => {
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${sampleThread.id}/comments/${sampleThreadComment.id}`,
+        auth: {
+          ...auth,
+          credentials: {
+            id: 'user-xxx',
+          },
+        },
+      });
+      expect(response.statusCode).toEqual(403);
     });
   });
 });
