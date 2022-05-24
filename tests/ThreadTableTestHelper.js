@@ -2,8 +2,8 @@
 const pool = require('../src/Infrastructures/database/postgres/pool');
 
 const ThreadTableTestHelper = {
-  async addOne({
-    id = 'thread-123', owner = 'user-123', title = 'Sample Title', body = 'Lorem ipsum', createdAt = new Date().toISOString()
+  async addThread({
+    id = 'thread-123', owner = 'user-123', title = 'Sample Title', body = 'Lorem ipsum', createdAt = new Date().toISOString(),
   }) {
     const updatedAt = createdAt;
     const query = {

@@ -7,7 +7,7 @@ class GetThreadUseCase {
 
   async execute(useCasePayload) {
     const { id } = new GetOneById(useCasePayload);
-    return this._threadRepository.getOneById(id);
+    return this._threadRepository.getThreadById(id);
   }
 }
 

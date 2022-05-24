@@ -4,10 +4,10 @@ class UsersHandler {
   constructor(container) {
     this._container = container;
 
-    this.addOne = this.addOne.bind(this);
+    this.addUser = this.addUser.bind(this);
   }
 
-  async addOne(request, h) {
+  async addUser(request, h) {
     const addUserUseCase = this._container.getInstance(AddUserUseCase.name);
     const addedUser = await addUserUseCase.execute(request.payload);
 

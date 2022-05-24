@@ -1,4 +1,6 @@
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
+const CommentRepository = require('../../../Domains/comments/CommentRepository');
+const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
 const DeleteThreadCommentReplyUseCase = require('../DeleteThreadCommentReplyUseCase');
 
 describe('DeleteThreadCommentReplyUseCase', () => {
@@ -16,33 +18,41 @@ describe('DeleteThreadCommentReplyUseCase', () => {
 
     /** creating dependency of use case */
     const mockThreadRepository = new ThreadRepository();
+    const mockCommentRepository = new CommentRepository();
+    const mockReplyRepository = new ReplyRepository();
 
     /** mocking needed function */
-    mockThreadRepository.checkOneById = jest.fn()
+    mockThreadRepository.checkAvailibilityThreadById = jest.fn()
       .mockImplementation(() => Promise.resolve(useCasePayload.threadId));
-    mockThreadRepository.checkOneCommentById = jest.fn()
+    mockCommentRepository.checkAvailibilityCommentById = jest.fn()
       .mockImplementation(() => Promise.resolve(useCasePayload.commentId));
-    mockThreadRepository.checkOneCommentReplyById = jest.fn()
+    mockReplyRepository.checkAvailibilityReplyById = jest.fn()
       .mockImplementation(() => Promise.resolve(useCasePayload.id));
-    mockThreadRepository.checkCommentReplyOwnership = jest.fn()
+    mockReplyRepository.checkCommentReplyOwnership = jest.fn()
       .mockImplementation(() => Promise.resolve());
-    mockThreadRepository.deleteOneCommentReply = jest.fn()
+    mockReplyRepository.deleteCommentReply = jest.fn()
       .mockImplementation(() => Promise.resolve());
 
     /** creating use case instance */
     const deleteThreadCommentReplyUseCase = new DeleteThreadCommentReplyUseCase({
       threadRepository: mockThreadRepository,
+      commentRepository: mockCommentRepository,
+      replyRepository: mockReplyRepository,
     });
 
     // Action
     await deleteThreadCommentReplyUseCase.execute(useCasePayload);
 
     // Assert
-    expect(mockThreadRepository.checkOneById).toBeCalledWith(useCasePayload.threadId);
-    expect(mockThreadRepository.checkOneCommentById).toBeCalledWith(useCasePayload.commentId);
-    expect(mockThreadRepository.checkOneCommentReplyById).toBeCalledWith(useCasePayload.id);
-    expect(mockThreadRepository.checkCommentReplyOwnership)
+    expect(mockThreadRepository.checkAvailibilityThreadById)
+      .toBeCalledWith(useCasePayload.threadId);
+    expect(mockCommentRepository.checkAvailibilityCommentById)
+      .toBeCalledWith(useCasePayload.commentId);
+    expect(mockReplyRepository.checkAvailibilityReplyById)
+      .toBeCalledWith(useCasePayload.id);
+    expect(mockReplyRepository.checkCommentReplyOwnership)
       .toBeCalledWith(useCasePayload.id, useCasePayload.userId);
-    expect(mockThreadRepository.deleteOneCommentReply).toBeCalledWith(useCasePayload.id);
+    expect(mockReplyRepository.deleteCommentReply)
+      .toBeCalledWith(useCasePayload.id);
   });
 });

@@ -1,4 +1,5 @@
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
+const CommentRepository = require('../../../Domains/comments/CommentRepository');
 const DeleteThreadCommentUseCase = require('../DeleteThreadCommentUseCase');
 
 describe('DeleteThreadCommentUseCase', () => {
@@ -15,30 +16,35 @@ describe('DeleteThreadCommentUseCase', () => {
 
     /** creating dependency of use case */
     const mockThreadRepository = new ThreadRepository();
+    const mockCommentRepository = new CommentRepository();
 
     /** mocking needed function */
-    mockThreadRepository.checkOneById = jest.fn()
+    mockThreadRepository.checkAvailibilityThreadById = jest.fn()
       .mockImplementation(() => Promise.resolve(useCasePayload.threadId));
-    mockThreadRepository.checkOneCommentById = jest.fn()
+    mockCommentRepository.checkAvailibilityCommentById = jest.fn()
       .mockImplementation(() => Promise.resolve(useCasePayload.id));
-    mockThreadRepository.checkCommentOwnership = jest.fn()
+    mockCommentRepository.checkCommentOwnership = jest.fn()
       .mockImplementation(() => Promise.resolve());
-    mockThreadRepository.deleteOneComment = jest.fn()
+    mockCommentRepository.deleteComment = jest.fn()
       .mockImplementation(() => Promise.resolve());
 
     /** creating use case instance */
     const deleteThreadCommentUseCase = new DeleteThreadCommentUseCase({
       threadRepository: mockThreadRepository,
+      commentRepository: mockCommentRepository,
     });
 
     // Action
     await deleteThreadCommentUseCase.execute(useCasePayload);
 
     // Assert
-    expect(mockThreadRepository.checkOneById).toBeCalledWith(useCasePayload.threadId);
-    expect(mockThreadRepository.checkOneCommentById).toBeCalledWith(useCasePayload.id);
-    expect(mockThreadRepository.checkCommentOwnership)
+    expect(mockThreadRepository.checkAvailibilityThreadById)
+      .toBeCalledWith(useCasePayload.threadId);
+    expect(mockCommentRepository.checkAvailibilityCommentById)
+      .toBeCalledWith(useCasePayload.id);
+    expect(mockCommentRepository.checkCommentOwnership)
       .toBeCalledWith(useCasePayload.id, useCasePayload.userId);
-    expect(mockThreadRepository.deleteOneComment).toBeCalledWith(useCasePayload.id);
+    expect(mockCommentRepository.deleteComment)
+      .toBeCalledWith(useCasePayload.id);
   });
 });

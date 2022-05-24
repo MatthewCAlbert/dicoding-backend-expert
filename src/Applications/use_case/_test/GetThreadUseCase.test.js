@@ -19,7 +19,7 @@ describe('GetThreadUseCase', () => {
     const mockThreadRepository = new ThreadRepository();
 
     /** mocking needed function */
-    mockThreadRepository.getOneById = jest.fn()
+    mockThreadRepository.getThreadById = jest.fn()
       .mockImplementation(() => Promise.resolve(expectedThreadResult));
 
     /** creating use case instance */
@@ -32,6 +32,6 @@ describe('GetThreadUseCase', () => {
 
     // Assert
     expect(retrievedThread).toStrictEqual(expectedThreadResult);
-    expect(mockThreadRepository.getOneById).toBeCalledWith(useCasePayload.id);
+    expect(mockThreadRepository.getThreadById).toBeCalledWith(useCasePayload.id);
   });
 });

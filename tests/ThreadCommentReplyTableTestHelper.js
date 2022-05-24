@@ -1,14 +1,14 @@
 /* istanbul ignore file */
 const pool = require('../src/Infrastructures/database/postgres/pool');
 
-const ThreadCommentTableTestHelper = {
-  async addOne({
-    id = 'comment-123', commentId = 'comment-123', ownerId = 'user-123', content = 'Lorem ipsum reply to comment', createdAt = new Date().toISOString()
+const ThreadCommentReplyTableTestHelper = {
+  async addCommentReply({
+    id = 'comment-123', comment = 'comment-123', owner = 'user-123', content = 'Lorem ipsum reply to comment', createdAt = new Date().toISOString(),
   }) {
     const updatedAt = createdAt;
     const query = {
       text: 'INSERT INTO thread_comment_replies VALUES($1, $2, $3, $4, $5, $6)',
-      values: [id, commentId, ownerId, content, createdAt, updatedAt],
+      values: [id, comment, owner, content, createdAt, updatedAt],
     };
 
     await pool.query(query);
@@ -29,4 +29,4 @@ const ThreadCommentTableTestHelper = {
   },
 };
 
-module.exports = ThreadCommentTableTestHelper;
+module.exports = ThreadCommentReplyTableTestHelper;

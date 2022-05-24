@@ -1,5 +1,3 @@
-const InvariantError = require('../../Commons/exceptions/InvariantError');
-const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 const ExistingThread = require('../../Domains/threads/entities/ExistingThread');
 const ThreadRepository = require('../../Domains/threads/ThreadRepository');
@@ -11,7 +9,7 @@ class ThreadRepositoryPostgres extends ThreadRepository {
     this._idGenerator = idGenerator;
   }
 
-  async addOne(newThread) {
+  async addThread(newThread) {
     const { title, body, owner } = newThread;
     const id = `thread-${this._idGenerator()}`;
     const createdAt = new Date().toISOString();
@@ -27,7 +25,7 @@ class ThreadRepositoryPostgres extends ThreadRepository {
     return new ExistingThread({ ...result.rows[0], createdAt, updatedAt });
   }
 
-  async checkOneById(threadId) {
+  async checkAvailibilityThreadById(threadId) {
     const query = {
       text: 'SELECT * FROM threads WHERE id = $1',
       values: [threadId],
@@ -44,7 +42,7 @@ class ThreadRepositoryPostgres extends ThreadRepository {
     return id;
   }
 
-  async getOneById(threadId) {
+  async getThreadById(threadId) {
     const threadQuery = {
       text: `
         SELECT threads.*, users.username FROM threads 
@@ -92,118 +90,6 @@ class ThreadRepositoryPostgres extends ThreadRepository {
     return new ExistingThread({
       ...thread, rawComments: commentsResult?.rows, rawReplies: repliesResult?.rows,
     });
-  }
-
-  async addOneComment(newThreadComment) {
-    const { thread, owner, content } = newThreadComment;
-    const id = `comment-${this._idGenerator()}`;
-    const createdAt = new Date().toISOString();
-    const updatedAt = createdAt;
-
-    const query = {
-      text: 'INSERT INTO thread_comments VALUES($1, $2, $3, $4, $5, $6) RETURNING id, thread, owner, content, "createdAt", "updatedAt"',
-      values: [id, thread, owner, content, createdAt, updatedAt],
-    };
-
-    await this._pool.query(query);
-
-    return { ...newThreadComment, id };
-  }
-
-  async deleteOneComment(commentId) {
-    const deletedAt = new Date().toISOString();
-    const query = {
-      text: 'UPDATE thread_comments SET "deletedAt" = $1 WHERE id = $2 ',
-      values: [deletedAt, commentId],
-    };
-
-    await this._pool.query(query);
-  }
-
-  async checkOneCommentById(threadCommentId) {
-    const query = {
-      text: 'SELECT * FROM thread_comments WHERE id = $1',
-      values: [threadCommentId],
-    };
-
-    const result = await this._pool.query(query);
-
-    if (!result.rowCount) {
-      throw new NotFoundError('komentar thread tidak ditemukan');
-    }
-
-    const { id } = result.rows[0];
-
-    return id;
-  }
-
-  async checkCommentOwnership(threadCommentId, userId) {
-    const query = {
-      text: 'SELECT * FROM thread_comments WHERE id = $1 AND owner = $2',
-      values: [threadCommentId, userId],
-    };
-
-    const result = await this._pool.query(query);
-
-    if (!result.rowCount) {
-      throw new AuthorizationError('bukan pemilik komentar thread');
-    }
-  }
-
-  async addOneCommentReply(newThreadCommentReply) {
-    const { comment, owner, content } = newThreadCommentReply;
-    const id = `reply-${this._idGenerator()}`;
-    const createdAt = new Date().toISOString();
-    const updatedAt = createdAt;
-
-    const query = {
-      text: 'INSERT INTO thread_comment_replies VALUES($1, $2, $3, $4, $5, $6) RETURNING id, comment, owner, content, "createdAt", "updatedAt"',
-      values: [id, comment, owner, content, createdAt, updatedAt],
-    };
-
-    await this._pool.query(query);
-
-    return { ...newThreadCommentReply, id };
-  }
-
-  async deleteOneCommentReply(replyId) {
-    const deletedAt = new Date().toISOString();
-    const query = {
-      text: 'UPDATE thread_comment_replies SET "deletedAt" = $1 WHERE id = $2 ',
-      values: [deletedAt, replyId],
-    };
-
-    await this._pool.query(query);
-  }
-
-  async checkOneCommentReplyById(threadCommentReplyId) {
-    const query = {
-      text: 'SELECT * FROM thread_comment_replies WHERE id = $1',
-      values: [threadCommentReplyId],
-    };
-
-    const result = await this._pool.query(query);
-
-    if (!result.rowCount) {
-      throw new NotFoundError('balasan komentar thread tidak ditemukan');
-    }
-
-    const { id } = result.rows[0];
-
-    return id;
-  }
-
-  async checkCommentReplyOwnership(threadCommentReplyId, userId) {
-    const query = {
-      text: 'SELECT * FROM thread_comment_replies WHERE id = $1 AND owner = $2',
-      values: [threadCommentReplyId, userId],
-    };
-
-    const result = await this._pool.query(query);
-
-    if (!result.rowCount) {
-      throw new AuthorizationError('bukan pemilik balasan komentar thread');
-    }
   }
 }
 
