@@ -9,36 +9,36 @@ exports.up = (pgm) => {
     thread: {
       type: 'VARCHAR(50)',
       notNull: true,
+      references: 'threads',
+      onDelete: 'CASCADE',
     },
     owner: {
       type: 'VARCHAR(50)',
       notNull: true,
+      references: 'users',
+      onDelete: 'CASCADE',
     },
     content: {
       type: 'TEXT',
       notNull: true,
     },
     createdAt: {
-      type: 'TEXT',
+      type: 'timestamp',
       notNull: true,
+      default: pgm.func('current_timestamp'),
     },
     updatedAt: {
-      type: 'TEXT',
+      type: 'timestamp',
       notNull: true,
+      default: pgm.func('current_timestamp'),
     },
     deletedAt: {
-      type: 'TEXT',
+      type: 'timestamp',
       default: null,
     },
   });
-
-  pgm.addConstraint('thread_comments', 'fk_thread_comments.user_id_users.id', 'FOREIGN KEY(owner) REFERENCES users(id) ON DELETE CASCADE');
-  pgm.addConstraint('thread_comments', 'fk_thread_comments.thread_id_threads.id', 'FOREIGN KEY(thread) REFERENCES threads(id) ON DELETE CASCADE');
 };
 
 exports.down = (pgm) => {
-  pgm.dropConstraint('thread_comments', 'fk_thread_comments.thread_id_threads.id', { ifExists: true });
-  pgm.dropConstraint('thread_comments', 'fk_thread_comments.user_id_users.id', { ifExists: true });
-
   pgm.dropTable('thread_comments');
 };

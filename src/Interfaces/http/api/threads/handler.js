@@ -1,9 +1,5 @@
 const AddThreadUseCase = require('../../../../Applications/use_case/AddThreadUseCase');
 const GetThreadUseCase = require('../../../../Applications/use_case/GetThreadUseCase');
-const AddThreadCommentUseCase = require('../../../../Applications/use_case/AddThreadCommentUseCase');
-const AddThreadCommentReplyUseCase = require('../../../../Applications/use_case/AddThreadCommentReplyUseCase');
-const DeleteThreadCommentUseCase = require('../../../../Applications/use_case/DeleteThreadCommentUseCase');
-const DeleteThreadCommentReplyUseCase = require('../../../../Applications/use_case/DeleteThreadCommentReplyUseCase');
 
 class ThreadHandler {
   constructor(container) {

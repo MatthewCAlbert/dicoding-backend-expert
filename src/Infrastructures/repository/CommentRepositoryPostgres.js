@@ -12,12 +12,10 @@ class CommentRepositoryPostgres extends CommentRepository {
   async addComment(newThreadComment) {
     const { thread, owner, content } = newThreadComment;
     const id = `comment-${this._idGenerator()}`;
-    const createdAt = new Date().toISOString();
-    const updatedAt = createdAt;
 
     const query = {
-      text: 'INSERT INTO thread_comments VALUES($1, $2, $3, $4, $5, $6) RETURNING id, thread, owner, content, "createdAt", "updatedAt"',
-      values: [id, thread, owner, content, createdAt, updatedAt],
+      text: 'INSERT INTO thread_comments VALUES($1, $2, $3, $4) RETURNING id, thread, owner, content',
+      values: [id, thread, owner, content],
     };
 
     await this._pool.query(query);
@@ -63,6 +61,23 @@ class CommentRepositoryPostgres extends CommentRepository {
     if (!result.rowCount) {
       throw new AuthorizationError('bukan pemilik komentar thread');
     }
+  }
+
+  async getCommentsByThreadId(threadId) {
+    const query = {
+      text: `
+        SELECT thread_comments.id, users.username, thread_comments."createdAt" AS "date", thread_comments.content, thread_comments."deletedAt"
+        FROM thread_comments 
+          LEFT JOIN users ON users.id = thread_comments.owner 
+          WHERE thread_comments.thread = $1 
+          ORDER BY thread_comments."createdAt" ASC
+      `,
+      values: [threadId],
+    };
+
+    const result = await this._pool.query(query);
+
+    return result?.rows;
   }
 }
 

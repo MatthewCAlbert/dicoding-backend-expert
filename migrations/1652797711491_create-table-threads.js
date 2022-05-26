@@ -9,6 +9,8 @@ exports.up = (pgm) => {
     owner: {
       type: 'VARCHAR(50)',
       notNull: true,
+      references: 'users',
+      onDelete: 'CASCADE',
     },
     title: {
       type: 'TEXT',
@@ -19,12 +21,14 @@ exports.up = (pgm) => {
       notNull: true,
     },
     createdAt: {
-      type: 'TEXT',
+      type: 'timestamp',
       notNull: true,
+      default: pgm.func('current_timestamp'),
     },
     updatedAt: {
-      type: 'TEXT',
+      type: 'timestamp',
       notNull: true,
+      default: pgm.func('current_timestamp'),
     },
   });
 
@@ -32,7 +36,5 @@ exports.up = (pgm) => {
 };
 
 exports.down = (pgm) => {
-  pgm.dropConstraint('threads', 'fk_threads.user_id_users.id', { ifExists: true });
-
   pgm.dropTable('threads');
 };

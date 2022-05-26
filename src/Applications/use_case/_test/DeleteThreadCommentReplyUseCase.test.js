@@ -7,7 +7,7 @@ describe('DeleteThreadCommentReplyUseCase', () => {
   /**
    * Menguji apakah use case mampu mengoskestrasikan langkah demi langkah dengan benar.
    */
-  it('should orchestrating the add user action correctly', async () => {
+  it('should orchestrating the delete thread comment reply action correctly', async () => {
     // Arrange
     const useCasePayload = {
       id: 'reply-xxx',

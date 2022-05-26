@@ -120,4 +120,19 @@ describe('CommentRepositoryPostgres', () => {
       expect(threadComment.deletedAt).not.toBeNull();
     });
   });
+
+  describe('getCommentsByThreadId function', () => {
+    it('should get thread comments by thread id from database', async () => {
+      // Arrange
+      const commentRepository = new CommentRepositoryPostgres(pool, nanoid);
+
+      // Action & Assert
+      const threadComments = await commentRepository.getCommentsByThreadId(sampleThread.id);
+      expect(threadComments).toHaveLength(1);
+      expect(threadComments[0].username).toStrictEqual(user.username);
+      expect(threadComments[0].content).toStrictEqual(sampleThreadComment.content);
+      expect(threadComments[0]).toHaveProperty('deletedAt');
+      expect(threadComments[0]).toHaveProperty('date');
+    });
+  });
 });

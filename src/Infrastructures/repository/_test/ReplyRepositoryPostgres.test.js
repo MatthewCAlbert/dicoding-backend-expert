@@ -133,4 +133,21 @@ describe('ReplyRepositoryPostgres', () => {
       expect(threadCommentReply.deletedAt).not.toBeNull();
     });
   });
+
+  describe('getCommentRepliesByThreadId function', () => {
+    it('should get thread comment replies by thread id from database', async () => {
+      // Arrange
+      const replyRepository = new ReplyRepositoryPostgres(pool, nanoid);
+
+      // Action & Assert
+      const threadCommentReplies = await replyRepository
+        .getCommentRepliesByThreadId(sampleThread.id);
+      expect(threadCommentReplies).toHaveLength(1);
+      expect(threadCommentReplies[0].commentId).toStrictEqual(sampleThreadComment.id);
+      expect(threadCommentReplies[0].username).toStrictEqual(user.username);
+      expect(threadCommentReplies[0].content).toStrictEqual(sampleThreadCommentReply.content);
+      expect(threadCommentReplies[0]).toHaveProperty('deletedAt');
+      expect(threadCommentReplies[0]).toHaveProperty('date');
+    });
+  });
 });

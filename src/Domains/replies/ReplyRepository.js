@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 class ReplyRepository {
   async addCommentReply(newCommentReply) {
     throw new Error('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
@@ -12,6 +14,10 @@ class ReplyRepository {
   }
 
   async checkCommentReplyOwnership(threadCommentReplyId, userId) {
+    throw new Error('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+  }
+
+  async getCommentRepliesByThreadId(threadId) {
     throw new Error('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
 }

@@ -7,7 +7,7 @@ describe('AddThreadCommentUseCase', () => {
   /**
    * Menguji apakah use case mampu mengoskestrasikan langkah demi langkah dengan benar.
    */
-  it('should orchestrating the add user action correctly', async () => {
+  it('should orchestrating the add thread comment action correctly', async () => {
     // Arrange
     const useCasePayload = {
       thread: 'thread-xxx',

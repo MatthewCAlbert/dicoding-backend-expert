@@ -5,7 +5,6 @@ const ThreadCommentTableTestHelper = require('../../../../tests/ThreadCommentTab
 const ThreadCommentReplyTableTestHelper = require('../../../../tests/ThreadCommentReplyTableTestHelper');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const NewThread = require('../../../Domains/threads/entities/NewThread');
-const ExistingThread = require('../../../Domains/threads/entities/ExistingThread');
 const pool = require('../../database/postgres/pool');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
 
@@ -102,18 +101,11 @@ describe('ThreadRepositoryPostgres', () => {
 
       // Action & Assert
       const thread = await threadRepository.getThreadById(sampleThread.id);
-      expect(thread).toBeInstanceOf(ExistingThread);
       expect(thread.id).toStrictEqual(sampleThread.id);
-      expect(thread.id.length).toBeGreaterThan(0);
       expect(thread.title).toStrictEqual(sampleThread.title);
       expect(thread.body).toStrictEqual(sampleThread.body);
       expect(thread.owner).toStrictEqual(sampleThread.owner);
       expect(thread.username).toStrictEqual(user.username);
-      expect(thread).toHaveProperty('comments');
-      expect(thread.comments).toHaveLength(1);
-      expect(thread.comments[0]).toHaveProperty('replies');
-      expect(thread.comments[0].replies).toHaveLength(1);
-      expect(thread).toHaveProperty('date');
     });
 
     it('should throw if not found', async () => {

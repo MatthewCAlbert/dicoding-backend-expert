@@ -12,12 +12,10 @@ class ReplyRepositoryPostgres extends ReplyRepository {
   async addCommentReply(newThreadCommentReply) {
     const { comment, owner, content } = newThreadCommentReply;
     const id = `reply-${this._idGenerator()}`;
-    const createdAt = new Date().toISOString();
-    const updatedAt = createdAt;
 
     const query = {
-      text: 'INSERT INTO thread_comment_replies VALUES($1, $2, $3, $4, $5, $6) RETURNING id, comment, owner, content, "createdAt", "updatedAt"',
-      values: [id, comment, owner, content, createdAt, updatedAt],
+      text: 'INSERT INTO thread_comment_replies VALUES($1, $2, $3, $4) RETURNING id, comment, owner, content',
+      values: [id, comment, owner, content],
     };
 
     await this._pool.query(query);
@@ -63,6 +61,24 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     if (!result.rowCount) {
       throw new AuthorizationError('bukan pemilik balasan komentar thread');
     }
+  }
+
+  async getCommentRepliesByThreadId(threadId) {
+    const query = {
+      text: `
+        SELECT thread_comment_replies.comment AS "commentId" ,thread_comment_replies.id, thread_comment_replies.content, thread_comment_replies."createdAt" AS "date", users.username, thread_comment_replies."deletedAt"
+        FROM thread_comment_replies 
+          LEFT JOIN thread_comments ON thread_comment_replies.comment = thread_comments.id
+          LEFT JOIN users ON users.id = thread_comment_replies.owner 
+          WHERE thread_comments.thread = $1 
+          ORDER BY thread_comment_replies."createdAt" ASC
+      `,
+      values: [threadId],
+    };
+
+    const result = await this._pool.query(query);
+
+    return result?.rows;
   }
 }
 
