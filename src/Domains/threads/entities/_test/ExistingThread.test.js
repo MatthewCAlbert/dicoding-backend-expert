@@ -52,6 +52,12 @@ describe('ExistingThread entities', () => {
         content: 'sampel',
       },
     ],
+    rawCommentLikes: [
+      {
+        threadCommentId: 'comment-xxx',
+        likes: '3',
+      },
+    ],
   };
 
   it('should create ExistingThread entities correctly', () => {
@@ -69,6 +75,28 @@ describe('ExistingThread entities', () => {
     expect(existingThread.owner).toEqual(payload.owner);
     expect(existingThread.username).toEqual(payload.username);
     expect(existingThread.comments).toHaveLength(1);
+    expect(existingThread.comments[0].likeCount).toStrictEqual(3);
+    expect(existingThread.comments[0].replies).toHaveLength(1);
+    expect(existingThread.date).toEqual(payload.createdAt);
+  });
+
+  it('should create ExistingThread entities correctly with empty comment likes', () => {
+    // Arrange
+    const payload = { ...sampleCompleteThread };
+    delete payload.rawCommentLikes;
+
+    // Action
+    const existingThread = new ExistingThread(payload);
+
+    // Assert
+    expect(existingThread).toBeInstanceOf(ExistingThread);
+    expect(existingThread.id).toEqual(payload.id);
+    expect(existingThread.title).toEqual(payload.title);
+    expect(existingThread.body).toEqual(payload.body);
+    expect(existingThread.owner).toEqual(payload.owner);
+    expect(existingThread.username).toEqual(payload.username);
+    expect(existingThread.comments).toHaveLength(1);
+    expect(existingThread.comments[0].likeCount).toStrictEqual(0);
     expect(existingThread.comments[0].replies).toHaveLength(1);
     expect(existingThread.date).toEqual(payload.createdAt);
   });

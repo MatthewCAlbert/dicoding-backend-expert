@@ -2,6 +2,7 @@ const NewThread = require('../../../Domains/threads/entities/NewThread');
 const ExistingThread = require('../../../Domains/threads/entities/ExistingThread');
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
+const CommentLikeRepository = require('../../../Domains/comment-likes/CommentLikeRepository');
 const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
 const ThreadUseCase = require('../ThreadUseCase');
 
@@ -24,6 +25,7 @@ describe('ThreadUseCase', () => {
     const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
     const mockReplyRepository = new ReplyRepository();
+    const mockCommentLikeRepository = new CommentLikeRepository();
 
     /** mocking needed function */
     mockThreadRepository.addThread = jest.fn()
@@ -33,6 +35,7 @@ describe('ThreadUseCase', () => {
     const threadUseCase = new ThreadUseCase({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
+      commentLikeRepository: mockCommentLikeRepository,
       replyRepository: mockReplyRepository,
     });
 
@@ -57,6 +60,7 @@ describe('ThreadUseCase', () => {
     const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
     const mockReplyRepository = new ReplyRepository();
+    const mockCommentLikeRepository = new CommentLikeRepository();
 
     /** mocking needed function */
     mockThreadRepository.getThreadById = jest.fn()
@@ -65,11 +69,14 @@ describe('ThreadUseCase', () => {
       .mockImplementation(() => Promise.resolve([]));
     mockReplyRepository.getCommentRepliesByThreadId = jest.fn()
       .mockImplementation(() => Promise.resolve([]));
+    mockCommentLikeRepository.getCommentLikesByThreadId = jest.fn()
+      .mockImplementation(() => Promise.resolve([]));
 
     /** creating use case instance */
     const threadUseCase = new ThreadUseCase({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
+      commentLikeRepository: mockCommentLikeRepository,
       replyRepository: mockReplyRepository,
     });
 

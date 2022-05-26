@@ -4,7 +4,7 @@ class ExistingThread {
 
     const {
       id, title, body, owner, createdAt, username,
-      rawComments, rawReplies,
+      rawComments, rawReplies, rawCommentLikes,
     } = payload;
 
     this.id = id;
@@ -27,6 +27,9 @@ class ExistingThread {
         username: comment.username,
         date: comment.date,
         content: comment.deletedAt === null ? comment.content : '**komentar telah dihapus**',
+        likeCount: parseInt(rawCommentLikes
+          ?.filter((likes) => likes.threadCommentId === comment.id)
+          ?.[0]?.likes || '0', 10),
         replies: replies || [],
       };
     }) || [];
