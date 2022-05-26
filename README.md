@@ -5,7 +5,7 @@ By Matthew Christopher Albert
 ## Submissions
 
 - Submission 1: May 21, 2022 (Last revision: May 24, 2022)
-- Submission 2: May x, 2022
+- Submission 2: May 26, 2022
 
 ## How to run
 
