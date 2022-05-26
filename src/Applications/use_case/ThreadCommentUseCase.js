@@ -1,12 +1,19 @@
+const NewThreadComment = require('../../Domains/comments/entities/NewThreadComment');
 const GetOneById = require('../../Domains/threads/entities/GetOneById');
 
-class DeleteThreadCommentUseCase {
+class ThreadCommentUseCase {
   constructor({ threadRepository, commentRepository }) {
     this._threadRepository = threadRepository;
     this._commentRepository = commentRepository;
   }
 
-  async execute(useCasePayload) {
+  async addThreadComment(useCasePayload) {
+    const newThreadComment = new NewThreadComment(useCasePayload);
+    await this._threadRepository.checkAvailibilityThreadById(newThreadComment.thread);
+    return this._commentRepository.addComment(newThreadComment);
+  }
+
+  async deleteThreadComment(useCasePayload) {
     const { id: threadCommentId, userId, threadId } = new GetOneById(useCasePayload);
     await this._commentRepository.checkAvailibilityCommentById(threadCommentId);
     await this._threadRepository.checkAvailibilityThreadById(threadId);
@@ -15,4 +22,4 @@ class DeleteThreadCommentUseCase {
   }
 }
 
-module.exports = DeleteThreadCommentUseCase;
+module.exports = ThreadCommentUseCase;

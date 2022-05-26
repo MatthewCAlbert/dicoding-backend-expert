@@ -1,5 +1,4 @@
-const AddThreadCommentUseCase = require('../../../../Applications/use_case/AddThreadCommentUseCase');
-const DeleteThreadCommentUseCase = require('../../../../Applications/use_case/DeleteThreadCommentUseCase');
+const ThreadCommentUseCase = require('../../../../Applications/use_case/ThreadCommentUseCase');
 
 class CommentHandler {
   constructor(container) {
@@ -13,8 +12,8 @@ class CommentHandler {
     const { threadId } = request.params;
     const { id: credentialId } = request.auth.credentials;
 
-    const addThreadCommentUseCase = this._container.getInstance(AddThreadCommentUseCase.name);
-    const addedComment = await addThreadCommentUseCase.execute({
+    const threadCommentUseCase = this._container.getInstance(ThreadCommentUseCase.name);
+    const addedComment = await threadCommentUseCase.addThreadComment({
       ...request.payload, owner: credentialId, thread: threadId,
     });
 
@@ -36,8 +35,8 @@ class CommentHandler {
     const { commentId, threadId } = request.params;
     const { id: credentialId } = request.auth.credentials;
 
-    const deleteThreadCommentUseCase = this._container.getInstance(DeleteThreadCommentUseCase.name);
-    await deleteThreadCommentUseCase.execute({
+    const threadCommentUseCase = this._container.getInstance(ThreadCommentUseCase.name);
+    await threadCommentUseCase.deleteThreadComment({
       id: commentId, userId: credentialId, threadId,
     });
 

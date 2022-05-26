@@ -29,12 +29,9 @@ const AuthenticationRepository = require('../Domains/authentications/Authenticat
 const AuthenticationRepositoryPostgres = require('./repository/AuthenticationRepositoryPostgres');
 const LogoutUserUseCase = require('../Applications/use_case/LogoutUserUseCase');
 const RefreshAuthenticationUseCase = require('../Applications/use_case/RefreshAuthenticationUseCase');
-const AddThreadUseCase = require('../Applications/use_case/AddThreadUseCase');
-const GetThreadUseCase = require('../Applications/use_case/GetThreadUseCase');
-const AddThreadCommentUseCase = require('../Applications/use_case/AddThreadCommentUseCase');
-const AddThreadCommentReplyUseCase = require('../Applications/use_case/AddThreadCommentReplyUseCase');
-const DeleteThreadCommentUseCase = require('../Applications/use_case/DeleteThreadCommentUseCase');
-const DeleteThreadCommentReplyUseCase = require('../Applications/use_case/DeleteThreadCommentReplyUseCase');
+const ThreadUseCase = require('../Applications/use_case/ThreadUseCase');
+const ThreadCommentUseCase = require('../Applications/use_case/ThreadCommentUseCase');
+const ThreadCommentReplyUseCase = require('../Applications/use_case/ThreadCommentReplyUseCase');
 
 // creating container
 const container = createContainer();
@@ -210,21 +207,8 @@ container.register([
   // MARK: forum
 
   {
-    key: AddThreadUseCase.name,
-    Class: AddThreadUseCase,
-    parameter: {
-      injectType: 'destructuring',
-      dependencies: [
-        {
-          name: 'threadRepository',
-          internal: ThreadRepository.name,
-        },
-      ],
-    },
-  },
-  {
-    key: GetThreadUseCase.name,
-    Class: GetThreadUseCase,
+    key: ThreadUseCase.name,
+    Class: ThreadUseCase,
     parameter: {
       injectType: 'destructuring',
       dependencies: [
@@ -244,8 +228,8 @@ container.register([
     },
   },
   {
-    key: AddThreadCommentUseCase.name,
-    Class: AddThreadCommentUseCase,
+    key: ThreadCommentUseCase.name,
+    Class: ThreadCommentUseCase,
     parameter: {
       injectType: 'destructuring',
       dependencies: [
@@ -261,46 +245,8 @@ container.register([
     },
   },
   {
-    key: AddThreadCommentReplyUseCase.name,
-    Class: AddThreadCommentReplyUseCase,
-    parameter: {
-      injectType: 'destructuring',
-      dependencies: [
-        {
-          name: 'threadRepository',
-          internal: ThreadRepository.name,
-        },
-        {
-          name: 'commentRepository',
-          internal: CommentRepository.name,
-        },
-        {
-          name: 'replyRepository',
-          internal: ReplyRepository.name,
-        },
-      ],
-    },
-  },
-  {
-    key: DeleteThreadCommentUseCase.name,
-    Class: DeleteThreadCommentUseCase,
-    parameter: {
-      injectType: 'destructuring',
-      dependencies: [
-        {
-          name: 'threadRepository',
-          internal: ThreadRepository.name,
-        },
-        {
-          name: 'commentRepository',
-          internal: CommentRepository.name,
-        },
-      ],
-    },
-  },
-  {
-    key: DeleteThreadCommentReplyUseCase.name,
-    Class: DeleteThreadCommentReplyUseCase,
+    key: ThreadCommentReplyUseCase.name,
+    Class: ThreadCommentReplyUseCase,
     parameter: {
       injectType: 'destructuring',
       dependencies: [

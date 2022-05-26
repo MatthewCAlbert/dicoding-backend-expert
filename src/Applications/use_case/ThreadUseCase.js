@@ -1,14 +1,20 @@
 const GetOneById = require('../../Domains/threads/entities/GetOneById');
+const NewThread = require('../../Domains/threads/entities/NewThread');
 const ExistingThread = require('../../Domains/threads/entities/ExistingThread');
 
-class GetThreadUseCase {
+class ThreadUseCase {
   constructor({ threadRepository, commentRepository, replyRepository }) {
     this._threadRepository = threadRepository;
     this._commentRepository = commentRepository;
     this._replyRepository = replyRepository;
   }
 
-  async execute(useCasePayload) {
+  async addThread(useCasePayload) {
+    const newThread = new NewThread(useCasePayload);
+    return this._threadRepository.addThread(newThread);
+  }
+
+  async getThreadDetail(useCasePayload) {
     const { id } = new GetOneById(useCasePayload);
     const thread = await this._threadRepository.getThreadById(id);
     const rawComments = await this._commentRepository.getCommentsByThreadId(id);
@@ -20,4 +26,4 @@ class GetThreadUseCase {
   }
 }
 
-module.exports = GetThreadUseCase;
+module.exports = ThreadUseCase;
