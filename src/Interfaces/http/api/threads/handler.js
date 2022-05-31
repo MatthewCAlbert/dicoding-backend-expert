@@ -1,4 +1,5 @@
-const ThreadUseCases = require('../../../../Applications/use_case/ThreadUseCases');
+const AddThreadUseCase = require('../../../../Applications/use_case/threads/AddThreadUseCase');
+const GetThreadDetailUseCase = require('../../../../Applications/use_case/threads/GetThreadDetailUseCase');
 
 class ThreadHandler {
   constructor(container) {
@@ -11,8 +12,8 @@ class ThreadHandler {
   async addThread(request, h) {
     const { id: credentialId } = request.auth.credentials;
 
-    const threadUseCases = this._container.getInstance(ThreadUseCases.name);
-    const addedThread = await threadUseCases.addThread({
+    const addThreadUseCase = this._container.getInstance(AddThreadUseCase.name);
+    const addedThread = await addThreadUseCase.execute({
       ...request.payload, owner: credentialId,
     });
 
@@ -32,8 +33,8 @@ class ThreadHandler {
 
   async getThreadDetail(request) {
     const { id } = request.params;
-    const threadUseCases = this._container.getInstance(ThreadUseCases.name);
-    const thread = await threadUseCases.getThreadDetail({ id });
+    const getThreadDetailUseCase = this._container.getInstance(GetThreadDetailUseCase.name);
+    const thread = await getThreadDetailUseCase.execute({ id });
     delete thread.owner;
 
     return {

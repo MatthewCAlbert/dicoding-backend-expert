@@ -1,10 +1,10 @@
-const NewThreadCommentLike = require('../../../Domains/comment-likes/entities/NewThreadCommentLike');
-const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
-const CommentRepository = require('../../../Domains/comments/CommentRepository');
-const CommentLikeRepository = require('../../../Domains/comment-likes/CommentLikeRepository');
-const ThreadCommentLikeUseCases = require('../ThreadCommentLikeUseCases');
+const NewThreadCommentLike = require('../../../../Domains/comment-likes/entities/NewThreadCommentLike');
+const ThreadRepository = require('../../../../Domains/threads/ThreadRepository');
+const CommentRepository = require('../../../../Domains/comments/CommentRepository');
+const CommentLikeRepository = require('../../../../Domains/comment-likes/CommentLikeRepository');
+const ThreadCommentLikeUseCase = require('../ToggleThreadCommentLikeUseCase');
 
-describe('ThreadCommentLikeUseCases', () => {
+describe('ThreadCommentLikeUseCase', () => {
   /**
    * Menguji apakah use case mampu mengoskestrasikan langkah demi langkah dengan benar.
    */
@@ -43,15 +43,15 @@ describe('ThreadCommentLikeUseCases', () => {
       }));
 
     /** creating use case instance */
-    const threadCommentLikeUseCases = new ThreadCommentLikeUseCases({
+    const threadCommentLikeUseCase = new ThreadCommentLikeUseCase({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
       commentLikeRepository: mockCommentLikeRepository,
     });
 
     // Action
-    const addedThreadCommentLike = await threadCommentLikeUseCases
-      .toggleThreadCommentLike(useCasePayload);
+    const addedThreadCommentLike = await threadCommentLikeUseCase
+      .execute(useCasePayload);
 
     // Assert
     expect(addedThreadCommentLike).toStrictEqual(expectedThreadResult);
@@ -97,14 +97,14 @@ describe('ThreadCommentLikeUseCases', () => {
       }));
 
     /** creating use case instance */
-    const threadCommentLikeUseCases = new ThreadCommentLikeUseCases({
+    const threadCommentLikeUseCase = new ThreadCommentLikeUseCase({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
       commentLikeRepository: mockCommentLikeRepository,
     });
 
     // Action
-    await threadCommentLikeUseCases.toggleThreadCommentLike(useCasePayload);
+    await threadCommentLikeUseCase.execute(useCasePayload);
 
     // Assert
     expect(mockCommentLikeRepository.deleteCommentLike).toBeCalledWith('comment-like-xxx');

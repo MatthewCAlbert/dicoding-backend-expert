@@ -1,4 +1,4 @@
-const ThreadCommentLikeUseCases = require('../../../../Applications/use_case/ThreadCommentLikeUseCases');
+const ToggleThreadCommentLikeUseCase = require('../../../../Applications/use_case/comment-likes/ToggleThreadCommentLikeUseCase');
 
 class CommentLikeHandler {
   constructor(container) {
@@ -11,8 +11,9 @@ class CommentLikeHandler {
     const { threadId, commentId } = request.params;
     const { id: credentialId } = request.auth.credentials;
 
-    const threadCommentLikeUseCases = this._container.getInstance(ThreadCommentLikeUseCases.name);
-    await threadCommentLikeUseCases.toggleThreadCommentLike({
+    const toggleThreadCommentLikeUseCase = this._container
+      .getInstance(ToggleThreadCommentLikeUseCase.name);
+    await toggleThreadCommentLikeUseCase.execute({
       id: commentId, userId: credentialId, threadId,
     });
 

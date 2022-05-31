@@ -1,54 +1,17 @@
-const NewThread = require('../../../Domains/threads/entities/NewThread');
-const ExistingThread = require('../../../Domains/threads/entities/ExistingThread');
-const ExistingThreadComment = require('../../../Domains/comments/entities/ExistingThreadComment');
-const ExistingThreadCommentReply = require('../../../Domains/replies/entities/ExistingThreadCommentReply');
-const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
-const CommentRepository = require('../../../Domains/comments/CommentRepository');
-const CommentLikeRepository = require('../../../Domains/comment-likes/CommentLikeRepository');
-const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
-const ThreadUseCases = require('../ThreadUseCases');
-const ExistingThreadCommentLikeCount = require('../../../Domains/comment-likes/entities/ExistingThreadCommentLikeCount');
+const ExistingThread = require('../../../../Domains/threads/entities/ExistingThread');
+const ExistingThreadComment = require('../../../../Domains/comments/entities/ExistingThreadComment');
+const ExistingThreadCommentReply = require('../../../../Domains/replies/entities/ExistingThreadCommentReply');
+const ThreadRepository = require('../../../../Domains/threads/ThreadRepository');
+const CommentRepository = require('../../../../Domains/comments/CommentRepository');
+const CommentLikeRepository = require('../../../../Domains/comment-likes/CommentLikeRepository');
+const ReplyRepository = require('../../../../Domains/replies/ReplyRepository');
+const GetThreadDetailUseCase = require('../GetThreadDetailUseCase');
+const ExistingThreadCommentLikeCount = require('../../../../Domains/comment-likes/entities/ExistingThreadCommentLikeCount');
 
-describe('ThreadUseCases', () => {
+describe('GetThreadDetailUseCase', () => {
   /**
    * Menguji apakah use case mampu mengoskestrasikan langkah demi langkah dengan benar.
    */
-  it('should orchestrating the add thread action correctly', async () => {
-    // Arrange
-    const useCasePayload = {
-      title: 'Judul',
-      owner: 'user-xxx',
-      body: 'Isi konten',
-    };
-    const expectedThreadResult = new ExistingThread({
-      ...useCasePayload, createdAt: '', updatedAt: '', id: 'thread-xxx',
-    });
-
-    /** creating dependency of use case */
-    const mockThreadRepository = new ThreadRepository();
-    const mockCommentRepository = new CommentRepository();
-    const mockReplyRepository = new ReplyRepository();
-    const mockCommentLikeRepository = new CommentLikeRepository();
-
-    /** mocking needed function */
-    mockThreadRepository.addThread = jest.fn()
-      .mockImplementation(() => Promise.resolve(expectedThreadResult));
-
-    /** creating use case instance */
-    const threadUseCases = new ThreadUseCases({
-      threadRepository: mockThreadRepository,
-      commentRepository: mockCommentRepository,
-      commentLikeRepository: mockCommentLikeRepository,
-      replyRepository: mockReplyRepository,
-    });
-
-    // Action
-    const addedThread = await threadUseCases.addThread(useCasePayload);
-
-    // Assert
-    expect(addedThread).toStrictEqual(expectedThreadResult);
-    expect(mockThreadRepository.addThread).toBeCalledWith(new NewThread(useCasePayload));
-  });
 
   // Samples
   const sample = {
@@ -134,7 +97,7 @@ describe('ThreadUseCases', () => {
       .mockImplementation(() => Promise.resolve(sample.rawCommentLikes));
 
     /** creating use case instance */
-    const threadUseCases = new ThreadUseCases({
+    const getThreadDetailUseCase = new GetThreadDetailUseCase({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
       commentLikeRepository: mockCommentLikeRepository,
@@ -142,7 +105,7 @@ describe('ThreadUseCases', () => {
     });
 
     // Action
-    const retrievedThread = await threadUseCases.getThreadDetail(useCasePayload);
+    const retrievedThread = await getThreadDetailUseCase.execute(useCasePayload);
 
     // Assert
     expect(retrievedThread).toStrictEqual(expectedThreadResult);
@@ -197,7 +160,7 @@ describe('ThreadUseCases', () => {
       .mockImplementation(() => Promise.resolve([]));
 
     /** creating use case instance */
-    const threadUseCases = new ThreadUseCases({
+    const getThreadDetailUseCase = new GetThreadDetailUseCase({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
       commentLikeRepository: mockCommentLikeRepository,
@@ -205,7 +168,7 @@ describe('ThreadUseCases', () => {
     });
 
     // Action
-    const retrievedThread = await threadUseCases.getThreadDetail(useCasePayload);
+    const retrievedThread = await getThreadDetailUseCase.execute(useCasePayload);
 
     // Assert
     expect(retrievedThread).toStrictEqual(expectedThreadResult);

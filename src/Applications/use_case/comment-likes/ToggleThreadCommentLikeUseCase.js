@@ -1,13 +1,13 @@
-const NewThreadCommentLike = require('../../Domains/comment-likes/entities/NewThreadCommentLike');
+const NewThreadCommentLike = require('../../../Domains/comment-likes/entities/NewThreadCommentLike');
 
-class ThreadCommentLikeUseCases {
+class ToggleThreadCommentLikeUseCase {
   constructor({ threadRepository, commentRepository, commentLikeRepository }) {
     this._threadRepository = threadRepository;
     this._commentRepository = commentRepository;
     this._commentLikeRepository = commentLikeRepository;
   }
 
-  async toggleThreadCommentLike(useCasePayload) {
+  async execute(useCasePayload) {
     const { id: threadCommentId, userId, threadId } = useCasePayload;
 
     await this._threadRepository.checkAvailibilityThreadById(threadId);
@@ -27,4 +27,4 @@ class ThreadCommentLikeUseCases {
   }
 }
 
-module.exports = ThreadCommentLikeUseCases;
+module.exports = ToggleThreadCommentLikeUseCase;
