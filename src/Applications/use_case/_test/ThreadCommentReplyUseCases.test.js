@@ -2,9 +2,9 @@ const NewThreadCommentReply = require('../../../Domains/replies/entities/NewThre
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
 const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
-const ThreadCommentReplyUseCase = require('../ThreadCommentReplyUseCase');
+const ThreadCommentReplyUseCases = require('../ThreadCommentReplyUseCases');
 
-describe('ThreadCommentReplyUseCase', () => {
+describe('ThreadCommentReplyUseCases', () => {
   /**
    * Menguji apakah use case mampu mengoskestrasikan langkah demi langkah dengan benar.
    */
@@ -43,14 +43,15 @@ describe('ThreadCommentReplyUseCase', () => {
       }));
 
     /** creating use case instance */
-    const threadCommentReplyUseCase = new ThreadCommentReplyUseCase({
+    const threadCommentReplyUseCases = new ThreadCommentReplyUseCases({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
       replyRepository: mockReplyRepository,
     });
 
     // Action
-    const addedThreadCommentReply = await threadCommentReplyUseCase.addCommentReply(useCasePayload);
+    const addedThreadCommentReply = await threadCommentReplyUseCases
+      .addCommentReply(useCasePayload);
 
     // Assert
     expect(addedThreadCommentReply).toStrictEqual(expectedThreadResult);
@@ -89,14 +90,14 @@ describe('ThreadCommentReplyUseCase', () => {
       .mockImplementation(() => Promise.resolve());
 
     /** creating use case instance */
-    const threadCommentReplyUseCase = new ThreadCommentReplyUseCase({
+    const threadCommentReplyUseCases = new ThreadCommentReplyUseCases({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
       replyRepository: mockReplyRepository,
     });
 
     // Action
-    await threadCommentReplyUseCase.deleteCommentReply(useCasePayload);
+    await threadCommentReplyUseCases.deleteCommentReply(useCasePayload);
 
     // Assert
     expect(mockThreadRepository.checkAvailibilityThreadById)

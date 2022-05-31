@@ -1,8 +1,6 @@
-const GetOneById = require('../../Domains/threads/entities/GetOneById');
 const NewThread = require('../../Domains/threads/entities/NewThread');
-const ExistingThread = require('../../Domains/threads/entities/ExistingThread');
 
-class ThreadUseCase {
+class ThreadUseCases {
   constructor({
     threadRepository, commentRepository, replyRepository, commentLikeRepository,
   }) {
@@ -18,16 +16,35 @@ class ThreadUseCase {
   }
 
   async getThreadDetail(useCasePayload) {
-    const { id } = new GetOneById(useCasePayload);
+    const { id } = useCasePayload;
     const thread = await this._threadRepository.getThreadById(id);
     const rawComments = await this._commentRepository.getCommentsByThreadId(id);
     const rawReplies = await this._replyRepository.getCommentRepliesByThreadId(id);
     const rawCommentLikes = await this._commentLikeRepository.getCommentLikesByThreadId(id);
 
-    return new ExistingThread({
-      ...thread, rawComments, rawReplies, rawCommentLikes,
+    thread.comments = rawComments.map((comment) => {
+      const replies = rawReplies
+        ?.filter((reply) => reply.comment === comment.id)
+        ?.map((reply) => ({
+          id: reply.id,
+          username: reply.username,
+          date: reply.date,
+          content: reply.content,
+        }));
+      return {
+        id: comment.id,
+        username: comment.username,
+        date: comment.date,
+        content: comment.content,
+        likeCount: rawCommentLikes
+          ?.filter((likes) => likes.comment === comment.id)
+          ?.[0]?.likes || 0,
+        replies,
+      };
     });
+
+    return thread;
   }
 }
 
-module.exports = ThreadUseCase;
+module.exports = ThreadUseCases;

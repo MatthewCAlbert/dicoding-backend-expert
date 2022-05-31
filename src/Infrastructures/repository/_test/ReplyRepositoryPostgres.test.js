@@ -8,6 +8,8 @@ const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const NewThreadCommentReply = require('../../../Domains/replies/entities/NewThreadCommentReply');
 const pool = require('../../database/postgres/pool');
 const ReplyRepositoryPostgres = require('../ReplyRepositoryPostgres');
+const ExistingThreadCommentReply = require('../../../Domains/replies/entities/ExistingThreadCommentReply');
+const AddedThreadCommentReply = require('../../../Domains/replies/entities/AddedThreadCommentReply');
 
 describe('ReplyRepositoryPostgres', () => {
   const user = {
@@ -60,13 +62,14 @@ describe('ReplyRepositoryPostgres', () => {
       const replyRepository = new ReplyRepositoryPostgres(pool, nanoid);
 
       // Action
-      const { id } = await replyRepository.addCommentReply(new NewThreadCommentReply({
+      const addedReply = await replyRepository.addCommentReply(new NewThreadCommentReply({
         ...sampleThreadCommentReply, comment: sampleThreadComment.id, thread: sampleThread.id,
       }));
-      sampleThreadCommentReply.id = id;
+      expect(addedReply).toBeInstanceOf(AddedThreadCommentReply);
+      sampleThreadCommentReply.id = addedReply.id;
 
       // Assert
-      const threadCommentReply = await ThreadCommentReplyTableTestHelper.findOneById(id);
+      const threadCommentReply = await ThreadCommentReplyTableTestHelper.findOneById(addedReply.id);
       expect(threadCommentReply).toHaveProperty('id');
       expect(threadCommentReply.content).toStrictEqual(sampleThreadCommentReply.content);
       expect(threadCommentReply.comment).toStrictEqual(sampleThreadComment.id);
@@ -75,13 +78,14 @@ describe('ReplyRepositoryPostgres', () => {
   });
 
   describe('checkAvailibilityReplyById function', () => {
-    it('should return id if found', async () => {
+    it('should return nothing if found', async () => {
       // Arrange
       const replyRepository = new ReplyRepositoryPostgres(pool, nanoid);
+      const spy = jest.spyOn(replyRepository, 'checkAvailibilityReplyById');
 
       // Action & Assert
-      const id = await replyRepository.checkAvailibilityReplyById(sampleThreadCommentReply.id);
-      expect(id).toStrictEqual(sampleThreadCommentReply.id);
+      await replyRepository.checkAvailibilityReplyById(sampleThreadCommentReply.id);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it('should throw error if not found', async () => {
       // Arrange
@@ -119,6 +123,25 @@ describe('ReplyRepositoryPostgres', () => {
     });
   });
 
+  describe('getCommentRepliesByThreadId function', () => {
+    it('should get thread comment replies by thread id from database', async () => {
+      // Arrange
+      const replyRepository = new ReplyRepositoryPostgres(pool, nanoid);
+
+      // Action & Assert
+      const threadCommentReplies = await replyRepository
+        .getCommentRepliesByThreadId(sampleThread.id);
+      expect(threadCommentReplies).toHaveLength(1);
+      expect(threadCommentReplies[0]).toBeInstanceOf(ExistingThreadCommentReply);
+      expect(threadCommentReplies[0].id).toStrictEqual(sampleThreadCommentReply.id);
+      expect(threadCommentReplies[0].owner).toStrictEqual(sampleThreadCommentReply.owner);
+      expect(threadCommentReplies[0].comment).toStrictEqual(sampleThreadComment.id);
+      expect(threadCommentReplies[0].username).toStrictEqual(user.username);
+      expect(threadCommentReplies[0].content).toStrictEqual(sampleThreadCommentReply.content);
+      expect(threadCommentReplies[0]).toHaveProperty('date');
+    });
+  });
+
   describe('deleteCommentReply function', () => {
     it('should delete one thread comment reply from database', async () => {
       // Arrange
@@ -131,23 +154,6 @@ describe('ReplyRepositoryPostgres', () => {
       const threadCommentReply = await ThreadCommentReplyTableTestHelper
         .findOneById(sampleThreadCommentReply.id);
       expect(threadCommentReply.deletedAt).not.toBeNull();
-    });
-  });
-
-  describe('getCommentRepliesByThreadId function', () => {
-    it('should get thread comment replies by thread id from database', async () => {
-      // Arrange
-      const replyRepository = new ReplyRepositoryPostgres(pool, nanoid);
-
-      // Action & Assert
-      const threadCommentReplies = await replyRepository
-        .getCommentRepliesByThreadId(sampleThread.id);
-      expect(threadCommentReplies).toHaveLength(1);
-      expect(threadCommentReplies[0].commentId).toStrictEqual(sampleThreadComment.id);
-      expect(threadCommentReplies[0].username).toStrictEqual(user.username);
-      expect(threadCommentReplies[0].content).toStrictEqual(sampleThreadCommentReply.content);
-      expect(threadCommentReplies[0]).toHaveProperty('deletedAt');
-      expect(threadCommentReplies[0]).toHaveProperty('date');
     });
   });
 });

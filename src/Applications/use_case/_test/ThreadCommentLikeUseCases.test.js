@@ -2,9 +2,9 @@ const NewThreadCommentLike = require('../../../Domains/comment-likes/entities/Ne
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
 const CommentLikeRepository = require('../../../Domains/comment-likes/CommentLikeRepository');
-const ThreadCommentLikeUseCase = require('../ThreadCommentLikeUseCase');
+const ThreadCommentLikeUseCases = require('../ThreadCommentLikeUseCases');
 
-describe('ThreadCommentLikeUseCase', () => {
+describe('ThreadCommentLikeUseCases', () => {
   /**
    * Menguji apakah use case mampu mengoskestrasikan langkah demi langkah dengan benar.
    */
@@ -31,7 +31,7 @@ describe('ThreadCommentLikeUseCase', () => {
       .mockImplementation(() => Promise.resolve('thread-xxx'));
     mockCommentRepository.checkAvailibilityCommentById = jest.fn()
       .mockImplementation(() => Promise.resolve('comment-xxx'));
-    mockCommentLikeRepository.checkAvailibilityCommentLike = jest.fn()
+    mockCommentLikeRepository.findCommentLikeId = jest.fn()
       .mockImplementation(() => Promise.resolve(false));
     mockCommentLikeRepository.deleteCommentLike = jest.fn()
       .mockImplementation(() => Promise.resolve());
@@ -43,14 +43,14 @@ describe('ThreadCommentLikeUseCase', () => {
       }));
 
     /** creating use case instance */
-    const threadCommentLikeUseCase = new ThreadCommentLikeUseCase({
+    const threadCommentLikeUseCases = new ThreadCommentLikeUseCases({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
       commentLikeRepository: mockCommentLikeRepository,
     });
 
     // Action
-    const addedThreadCommentLike = await threadCommentLikeUseCase
+    const addedThreadCommentLike = await threadCommentLikeUseCases
       .toggleThreadCommentLike(useCasePayload);
 
     // Assert
@@ -63,7 +63,7 @@ describe('ThreadCommentLikeUseCase', () => {
       .toBeCalledWith(useCasePayload.threadId);
     expect(mockCommentRepository.checkAvailibilityCommentById)
       .toBeCalledWith(useCasePayload.id);
-    expect(mockCommentLikeRepository.checkAvailibilityCommentLike)
+    expect(mockCommentLikeRepository.findCommentLikeId)
       .toBeCalledWith(useCasePayload.id, useCasePayload.userId);
   });
 
@@ -85,7 +85,7 @@ describe('ThreadCommentLikeUseCase', () => {
       .mockImplementation(() => Promise.resolve('thread-xxx'));
     mockCommentRepository.checkAvailibilityCommentById = jest.fn()
       .mockImplementation(() => Promise.resolve('comment-xxx'));
-    mockCommentLikeRepository.checkAvailibilityCommentLike = jest.fn()
+    mockCommentLikeRepository.findCommentLikeId = jest.fn()
       .mockImplementation(() => Promise.resolve('comment-like-xxx'));
     mockCommentLikeRepository.deleteCommentLike = jest.fn()
       .mockImplementation(() => Promise.resolve());
@@ -97,14 +97,14 @@ describe('ThreadCommentLikeUseCase', () => {
       }));
 
     /** creating use case instance */
-    const threadCommentLikeUseCase = new ThreadCommentLikeUseCase({
+    const threadCommentLikeUseCases = new ThreadCommentLikeUseCases({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
       commentLikeRepository: mockCommentLikeRepository,
     });
 
     // Action
-    await threadCommentLikeUseCase.toggleThreadCommentLike(useCasePayload);
+    await threadCommentLikeUseCases.toggleThreadCommentLike(useCasePayload);
 
     // Assert
     expect(mockCommentLikeRepository.deleteCommentLike).toBeCalledWith('comment-like-xxx');
@@ -112,7 +112,7 @@ describe('ThreadCommentLikeUseCase', () => {
       .toBeCalledWith(useCasePayload.threadId);
     expect(mockCommentRepository.checkAvailibilityCommentById)
       .toBeCalledWith(useCasePayload.id);
-    expect(mockCommentLikeRepository.checkAvailibilityCommentLike)
+    expect(mockCommentLikeRepository.findCommentLikeId)
       .toBeCalledWith(useCasePayload.id, useCasePayload.userId);
   });
 });

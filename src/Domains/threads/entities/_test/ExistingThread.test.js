@@ -33,36 +33,11 @@ describe('ExistingThread entities', () => {
     owner: 'user-xxxx',
     createdAt: '2022-05-18T18:18:08.714Z',
     username: 'matthew',
-    rawComments: [
-      {
-        id: 'comment-xxx',
-        username: 'budi',
-        date: '2022-05-18T18:18:08.714Z',
-        deletedAt: null,
-        content: 'sampel',
-      },
-    ],
-    rawReplies: [
-      {
-        commentId: 'comment-xxx',
-        id: 'reply-xxx',
-        username: 'budi',
-        date: '2022-05-18T18:18:08.714Z',
-        deletedAt: null,
-        content: 'sampel',
-      },
-    ],
-    rawCommentLikes: [
-      {
-        threadCommentId: 'comment-xxx',
-        likes: '3',
-      },
-    ],
   };
 
   it('should create ExistingThread entities correctly', () => {
     // Arrange
-    const payload = sampleCompleteThread;
+    const payload = { ...sampleCompleteThread, comments: [{}] };
 
     // Action
     const existingThread = new ExistingThread(payload);
@@ -75,37 +50,12 @@ describe('ExistingThread entities', () => {
     expect(existingThread.owner).toEqual(payload.owner);
     expect(existingThread.username).toEqual(payload.username);
     expect(existingThread.comments).toHaveLength(1);
-    expect(existingThread.comments[0].likeCount).toStrictEqual(3);
-    expect(existingThread.comments[0].replies).toHaveLength(1);
-    expect(existingThread.date).toEqual(payload.createdAt);
-  });
-
-  it('should create ExistingThread entities correctly with empty comment likes', () => {
-    // Arrange
-    const payload = { ...sampleCompleteThread };
-    delete payload.rawCommentLikes;
-
-    // Action
-    const existingThread = new ExistingThread(payload);
-
-    // Assert
-    expect(existingThread).toBeInstanceOf(ExistingThread);
-    expect(existingThread.id).toEqual(payload.id);
-    expect(existingThread.title).toEqual(payload.title);
-    expect(existingThread.body).toEqual(payload.body);
-    expect(existingThread.owner).toEqual(payload.owner);
-    expect(existingThread.username).toEqual(payload.username);
-    expect(existingThread.comments).toHaveLength(1);
-    expect(existingThread.comments[0].likeCount).toStrictEqual(0);
-    expect(existingThread.comments[0].replies).toHaveLength(1);
     expect(existingThread.date).toEqual(payload.createdAt);
   });
 
   it('should create ExistingThread entities correctly with empty comments', () => {
     // Arrange
     const payload = { ...sampleCompleteThread };
-    delete payload.rawComments;
-    delete payload.rawReplies;
 
     // Action
     const existingThread = new ExistingThread(payload);
@@ -118,49 +68,6 @@ describe('ExistingThread entities', () => {
     expect(existingThread.owner).toEqual(payload.owner);
     expect(existingThread.username).toEqual(payload.username);
     expect(existingThread.comments).toHaveLength(0);
-    expect(existingThread.date).toEqual(payload.createdAt);
-  });
-
-  it('should create ExistingThread entities correctly with empty replies', () => {
-    // Arrange
-    const payload = { ...sampleCompleteThread };
-    delete payload.rawReplies;
-
-    // Action
-    const existingThread = new ExistingThread(payload);
-
-    // Assert
-    expect(existingThread).toBeInstanceOf(ExistingThread);
-    expect(existingThread.id).toEqual(payload.id);
-    expect(existingThread.title).toEqual(payload.title);
-    expect(existingThread.body).toEqual(payload.body);
-    expect(existingThread.owner).toEqual(payload.owner);
-    expect(existingThread.username).toEqual(payload.username);
-    expect(existingThread.comments).toHaveLength(1);
-    expect(existingThread.comments[0].replies).toHaveLength(0);
-    expect(existingThread.date).toEqual(payload.createdAt);
-  });
-
-  it('should create ExistingThread entities correctly with deleted transformation', () => {
-    // Arrange
-    const payload = { ...sampleCompleteThread };
-    payload.rawComments[0].deletedAt = '2022-05-18T18:18:08.714Z';
-    payload.rawReplies[0].deletedAt = '2022-05-18T18:18:08.714Z';
-
-    // Action
-    const existingThread = new ExistingThread(payload);
-
-    // Assert
-    expect(existingThread).toBeInstanceOf(ExistingThread);
-    expect(existingThread.id).toEqual(payload.id);
-    expect(existingThread.title).toEqual(payload.title);
-    expect(existingThread.body).toEqual(payload.body);
-    expect(existingThread.owner).toEqual(payload.owner);
-    expect(existingThread.username).toEqual(payload.username);
-    expect(existingThread.comments).toHaveLength(1);
-    expect(existingThread.comments[0].content).toStrictEqual('**komentar telah dihapus**');
-    expect(existingThread.comments[0].replies).toHaveLength(1);
-    expect(existingThread.comments[0].replies[0].content).toStrictEqual('**balasan telah dihapus**');
     expect(existingThread.date).toEqual(payload.createdAt);
   });
 });

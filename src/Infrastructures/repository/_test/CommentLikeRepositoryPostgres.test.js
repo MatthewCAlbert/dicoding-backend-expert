@@ -6,6 +6,8 @@ const ThreadCommentLikeTableTestHelper = require('../../../../tests/ThreadCommen
 const NewThreadCommentLike = require('../../../Domains/comment-likes/entities/NewThreadCommentLike');
 const pool = require('../../database/postgres/pool');
 const CommentLikeRepositoryPostgres = require('../CommentLikeRepositoryPostgres');
+const ExistingThreadCommentLikeCount = require('../../../Domains/comment-likes/entities/ExistingThreadCommentLikeCount');
+const AddedThreadCommentLike = require('../../../Domains/comment-likes/entities/AddedThreadCommentLike');
 
 describe('CommentLikeRepositoryPostgres', () => {
   const user = {
@@ -58,26 +60,28 @@ describe('CommentLikeRepositoryPostgres', () => {
       const commentLikeRepository = new CommentLikeRepositoryPostgres(pool, nanoid);
 
       // Action
-      const { id } = await commentLikeRepository
+      const addedLikeData = await commentLikeRepository
         .addCommentLike(new NewThreadCommentLike(sampleThreadCommentLike));
-      sampleThreadCommentLike.id = id;
+      sampleThreadCommentLike.id = addedLikeData.id;
+      expect(addedLikeData).toBeInstanceOf(AddedThreadCommentLike);
 
       // Assert
-      const threadCommentLike = await ThreadCommentLikeTableTestHelper.findOneById(id);
+      const threadCommentLike = await ThreadCommentLikeTableTestHelper
+        .findOneById(addedLikeData.id);
       expect(threadCommentLike).toHaveProperty('id');
       expect(threadCommentLike.comment).toStrictEqual(sampleThreadComment.id);
       expect(threadCommentLike.owner).toStrictEqual(user.id);
     });
   });
 
-  describe('checkAvailibilityCommentLike function', () => {
+  describe('findCommentLikeId function', () => {
     it('should return id if found', async () => {
       // Arrange
       const commentLikeRepository = new CommentLikeRepositoryPostgres(pool, nanoid);
 
       // Action & Assert
       const result = await commentLikeRepository
-        .checkAvailibilityCommentLike(sampleThreadComment.id, user.id);
+        .findCommentLikeId(sampleThreadComment.id, user.id);
       expect(result).toStrictEqual(sampleThreadCommentLike.id);
     });
     it('should return false if not found', async () => {
@@ -86,7 +90,7 @@ describe('CommentLikeRepositoryPostgres', () => {
 
       // Action & Assert
       const result = await commentLikeRepository
-        .checkAvailibilityCommentLike('comment-xxx', user.id);
+        .findCommentLikeId('comment-xxx', user.id);
       expect(result).toStrictEqual(false);
     });
   });
@@ -99,8 +103,9 @@ describe('CommentLikeRepositoryPostgres', () => {
       // Action & Assert
       const threadComments = await commentLikeRepository.getCommentLikesByThreadId(sampleThread.id);
       expect(threadComments).toHaveLength(1);
-      expect(threadComments[0].likes).toStrictEqual('1');
-      expect(threadComments[0].threadCommentId).toStrictEqual(sampleThreadComment.id);
+      expect(threadComments[0]).toBeInstanceOf(ExistingThreadCommentLikeCount);
+      expect(threadComments[0].likes).toStrictEqual(1);
+      expect(threadComments[0].comment).toStrictEqual(sampleThreadComment.id);
     });
   });
 

@@ -7,6 +7,8 @@ const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const NewThreadComment = require('../../../Domains/comments/entities/NewThreadComment');
 const pool = require('../../database/postgres/pool');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
+const ExistingThreadComment = require('../../../Domains/comments/entities/ExistingThreadComment');
+const AddedThreadComment = require('../../../Domains/comments/entities/AddedThreadComment');
 
 describe('CommentRepositoryPostgres', () => {
   const user = {
@@ -49,12 +51,13 @@ describe('CommentRepositoryPostgres', () => {
       const commentRepository = new CommentRepositoryPostgres(pool, nanoid);
 
       // Action
-      const { id } = await commentRepository
+      const addedComment = await commentRepository
         .addComment(new NewThreadComment({ ...sampleThreadComment, thread: sampleThread.id }));
-      sampleThreadComment.id = id;
+      expect(addedComment).toBeInstanceOf(AddedThreadComment);
+      sampleThreadComment.id = addedComment.id;
 
       // Assert
-      const threadComment = await ThreadCommentTableTestHelper.findOneById(id);
+      const threadComment = await ThreadCommentTableTestHelper.findOneById(addedComment.id);
       expect(threadComment).toHaveProperty('id');
       expect(threadComment.content).toStrictEqual(sampleThreadComment.content);
       expect(threadComment.thread).toStrictEqual(sampleThread.id);
@@ -63,13 +66,14 @@ describe('CommentRepositoryPostgres', () => {
   });
 
   describe('checkAvailibilityCommentById function', () => {
-    it('should return id if found', async () => {
+    it('should return nothing if found', async () => {
       // Arrange
       const commentRepository = new CommentRepositoryPostgres(pool, nanoid);
+      const spy = jest.spyOn(commentRepository, 'checkAvailibilityCommentById');
 
       // Action & Assert
-      const id = await commentRepository.checkAvailibilityCommentById(sampleThreadComment.id);
-      expect(id).toStrictEqual(sampleThreadComment.id);
+      await commentRepository.checkAvailibilityCommentById(sampleThreadComment.id);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it('should throw error if not found', async () => {
       // Arrange
@@ -107,6 +111,25 @@ describe('CommentRepositoryPostgres', () => {
     });
   });
 
+  describe('getCommentsByThreadId function', () => {
+    it('should get thread comments by thread id from database', async () => {
+      // Arrange
+      const commentRepository = new CommentRepositoryPostgres(pool, nanoid);
+
+      // Action & Assert
+      const threadComments = await commentRepository.getCommentsByThreadId(sampleThread.id);
+      expect(threadComments).toHaveLength(1);
+      expect(threadComments[0]).toBeInstanceOf(ExistingThreadComment);
+      expect(threadComments[0].id).toStrictEqual(sampleThreadComment.id);
+      expect(threadComments[0].username).toStrictEqual(user.username);
+      expect(threadComments[0].owner).toStrictEqual(sampleThreadComment.owner);
+      expect(threadComments[0].content).toStrictEqual(sampleThreadComment.content);
+      expect(threadComments[0].likeCount).toStrictEqual(0);
+      expect(threadComments[0]).toHaveProperty('date');
+      expect(threadComments[0]).toHaveProperty('replies');
+    });
+  });
+
   describe('deleteComment function', () => {
     it('should delete one thread comment from database', async () => {
       // Arrange
@@ -118,21 +141,6 @@ describe('CommentRepositoryPostgres', () => {
       // Assert
       const threadComment = await ThreadCommentTableTestHelper.findOneById(sampleThreadComment.id);
       expect(threadComment.deletedAt).not.toBeNull();
-    });
-  });
-
-  describe('getCommentsByThreadId function', () => {
-    it('should get thread comments by thread id from database', async () => {
-      // Arrange
-      const commentRepository = new CommentRepositoryPostgres(pool, nanoid);
-
-      // Action & Assert
-      const threadComments = await commentRepository.getCommentsByThreadId(sampleThread.id);
-      expect(threadComments).toHaveLength(1);
-      expect(threadComments[0].username).toStrictEqual(user.username);
-      expect(threadComments[0].content).toStrictEqual(sampleThreadComment.content);
-      expect(threadComments[0]).toHaveProperty('deletedAt');
-      expect(threadComments[0]).toHaveProperty('date');
     });
   });
 });

@@ -1,7 +1,6 @@
 const NewThreadComment = require('../../Domains/comments/entities/NewThreadComment');
-const GetOneById = require('../../Domains/threads/entities/GetOneById');
 
-class ThreadCommentUseCase {
+class ThreadCommentUseCases {
   constructor({ threadRepository, commentRepository }) {
     this._threadRepository = threadRepository;
     this._commentRepository = commentRepository;
@@ -14,7 +13,7 @@ class ThreadCommentUseCase {
   }
 
   async deleteThreadComment(useCasePayload) {
-    const { id: threadCommentId, userId, threadId } = new GetOneById(useCasePayload);
+    const { id: threadCommentId, userId, threadId } = useCasePayload;
     await this._commentRepository.checkAvailibilityCommentById(threadCommentId);
     await this._threadRepository.checkAvailibilityThreadById(threadId);
     await this._commentRepository.checkCommentOwnership(threadCommentId, userId);
@@ -22,4 +21,4 @@ class ThreadCommentUseCase {
   }
 }
 
-module.exports = ThreadCommentUseCase;
+module.exports = ThreadCommentUseCases;

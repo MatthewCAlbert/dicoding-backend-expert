@@ -1,4 +1,6 @@
 const CommentLikeRepository = require('../../Domains/comment-likes/CommentLikeRepository');
+const AddedThreadCommentLike = require('../../Domains/comment-likes/entities/AddedThreadCommentLike');
+const ExistingThreadCommentLikeCount = require('../../Domains/comment-likes/entities/ExistingThreadCommentLikeCount');
 
 class CommentLikeRepositoryPostgres extends CommentLikeRepository {
   constructor(pool, idGenerator) {
@@ -18,7 +20,7 @@ class CommentLikeRepositoryPostgres extends CommentLikeRepository {
 
     await this._pool.query(query);
 
-    return { ...newThreadCommentLike, id };
+    return new AddedThreadCommentLike({ ...newThreadCommentLike, id });
   }
 
   async deleteCommentLike(threadCommentLikeId) {
@@ -30,7 +32,7 @@ class CommentLikeRepositoryPostgres extends CommentLikeRepository {
     await this._pool.query(query);
   }
 
-  async checkAvailibilityCommentLike(threadCommentId, userId) {
+  async findCommentLikeId(threadCommentId, userId) {
     const query = {
       text: 'SELECT * FROM thread_comment_likes WHERE comment = $1 AND owner = $2',
       values: [threadCommentId, userId],
@@ -48,7 +50,7 @@ class CommentLikeRepositoryPostgres extends CommentLikeRepository {
   async getCommentLikesByThreadId(threadId) {
     const query = {
       text: `
-        SELECT thread_comments.id AS "threadCommentId", COUNT(thread_comment_likes.id) AS likes
+        SELECT thread_comments.id AS comment, COUNT(thread_comment_likes.id) AS likes
         FROM thread_comments 
           LEFT JOIN thread_comment_likes ON thread_comments.id = thread_comment_likes.comment 
           WHERE thread_comments.thread = $1 
@@ -59,7 +61,8 @@ class CommentLikeRepositoryPostgres extends CommentLikeRepository {
 
     const result = await this._pool.query(query);
 
-    return result?.rows;
+    return result?.rows?.map(
+      (e) => new ExistingThreadCommentLikeCount({ ...e, likes: parseInt(e.likes, 10) }));
   }
 }
 

@@ -7,6 +7,8 @@ const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const NewThread = require('../../../Domains/threads/entities/NewThread');
 const pool = require('../../database/postgres/pool');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
+const ExistingThread = require('../../../Domains/threads/entities/ExistingThread');
+const AddedThread = require('../../../Domains/threads/entities/AddedThread');
 
 describe('ThreadRepositoryPostgres', () => {
   const user = {
@@ -57,11 +59,12 @@ describe('ThreadRepositoryPostgres', () => {
       const threadRepository = new ThreadRepositoryPostgres(pool, nanoid);
 
       // Action
-      const { id } = await threadRepository.addThread(new NewThread(sampleThread));
-      sampleThread.id = id;
+      const addedThread = await threadRepository.addThread(new NewThread(sampleThread));
+      expect(addedThread).toBeInstanceOf(AddedThread);
+      sampleThread.id = addedThread.id;
 
       // Assert
-      const thread = await ThreadTableTestHelper.findOneById(id);
+      const thread = await ThreadTableTestHelper.findOneById(addedThread.id);
       expect(thread).toHaveProperty('id');
       expect(thread.title).toStrictEqual('Title 1');
       expect(thread.body).toStrictEqual('Body 1');
@@ -70,13 +73,14 @@ describe('ThreadRepositoryPostgres', () => {
   });
 
   describe('checkAvailibilityThreadById function', () => {
-    it('should return id if found', async () => {
+    it('should return nothing if found', async () => {
       // Arrange
       const threadRepository = new ThreadRepositoryPostgres(pool, nanoid);
+      const spy = jest.spyOn(threadRepository, 'checkAvailibilityThreadById');
 
       // Action & Assert
-      const id = await threadRepository.checkAvailibilityThreadById(sampleThread.id);
-      expect(id).toStrictEqual(sampleThread.id);
+      await threadRepository.checkAvailibilityThreadById(sampleThread.id);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it('should throw error if not found', async () => {
       // Arrange
@@ -101,6 +105,7 @@ describe('ThreadRepositoryPostgres', () => {
 
       // Action & Assert
       const thread = await threadRepository.getThreadById(sampleThread.id);
+      expect(thread).toBeInstanceOf(ExistingThread);
       expect(thread.id).toStrictEqual(sampleThread.id);
       expect(thread.title).toStrictEqual(sampleThread.title);
       expect(thread.body).toStrictEqual(sampleThread.body);

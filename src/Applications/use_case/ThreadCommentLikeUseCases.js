@@ -1,7 +1,6 @@
 const NewThreadCommentLike = require('../../Domains/comment-likes/entities/NewThreadCommentLike');
-const GetOneById = require('../../Domains/threads/entities/GetOneById');
 
-class ThreadCommentLikeUseCase {
+class ThreadCommentLikeUseCases {
   constructor({ threadRepository, commentRepository, commentLikeRepository }) {
     this._threadRepository = threadRepository;
     this._commentRepository = commentRepository;
@@ -9,12 +8,12 @@ class ThreadCommentLikeUseCase {
   }
 
   async toggleThreadCommentLike(useCasePayload) {
-    const { id: threadCommentId, userId, threadId } = new GetOneById(useCasePayload);
+    const { id: threadCommentId, userId, threadId } = useCasePayload;
 
     await this._threadRepository.checkAvailibilityThreadById(threadId);
     await this._commentRepository.checkAvailibilityCommentById(threadCommentId);
     const alreadyLikedId = await this._commentLikeRepository
-      .checkAvailibilityCommentLike(threadCommentId, userId);
+      .findCommentLikeId(threadCommentId, userId);
 
     if (alreadyLikedId) {
       return this._commentLikeRepository.deleteCommentLike(alreadyLikedId);
@@ -28,4 +27,4 @@ class ThreadCommentLikeUseCase {
   }
 }
 
-module.exports = ThreadCommentLikeUseCase;
+module.exports = ThreadCommentLikeUseCases;

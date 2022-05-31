@@ -1,6 +1,8 @@
 const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 const CommentRepository = require('../../Domains/comments/CommentRepository');
+const AddedThreadComment = require('../../Domains/comments/entities/AddedThreadComment');
+const ExistingThreadComment = require('../../Domains/comments/entities/ExistingThreadComment');
 
 class CommentRepositoryPostgres extends CommentRepository {
   constructor(pool, idGenerator) {
@@ -20,7 +22,7 @@ class CommentRepositoryPostgres extends CommentRepository {
 
     await this._pool.query(query);
 
-    return { ...newThreadComment, id };
+    return new AddedThreadComment({ ...newThreadComment, id });
   }
 
   async deleteComment(commentId) {
@@ -44,10 +46,6 @@ class CommentRepositoryPostgres extends CommentRepository {
     if (!result.rowCount) {
       throw new NotFoundError('komentar thread tidak ditemukan');
     }
-
-    const { id } = result.rows[0];
-
-    return id;
   }
 
   async checkCommentOwnership(threadCommentId, userId) {
@@ -66,7 +64,7 @@ class CommentRepositoryPostgres extends CommentRepository {
   async getCommentsByThreadId(threadId) {
     const query = {
       text: `
-        SELECT thread_comments.id, users.username, thread_comments."createdAt" AS "date", thread_comments.content, thread_comments."deletedAt"
+        SELECT thread_comments.id, thread_comments.thread, users.username, thread_comments.owner, thread_comments."createdAt" AS "date", thread_comments.content, thread_comments."deletedAt"
         FROM thread_comments 
           LEFT JOIN users ON users.id = thread_comments.owner 
           WHERE thread_comments.thread = $1 
@@ -77,7 +75,7 @@ class CommentRepositoryPostgres extends CommentRepository {
 
     const result = await this._pool.query(query);
 
-    return result?.rows;
+    return result?.rows?.map((e) => new ExistingThreadComment({ ...e, likeCount: 0 }));
   }
 }
 

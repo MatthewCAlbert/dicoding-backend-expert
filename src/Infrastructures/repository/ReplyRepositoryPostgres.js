@@ -1,5 +1,7 @@
 const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
+const AddedThreadCommentReply = require('../../Domains/replies/entities/AddedThreadCommentReply');
+const ExistingThreadCommentReply = require('../../Domains/replies/entities/ExistingThreadCommentReply');
 const ReplyRepository = require('../../Domains/replies/ReplyRepository');
 
 class ReplyRepositoryPostgres extends ReplyRepository {
@@ -20,7 +22,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
 
     await this._pool.query(query);
 
-    return { ...newThreadCommentReply, id };
+    return new AddedThreadCommentReply({ ...newThreadCommentReply, id });
   }
 
   async deleteCommentReply(replyId) {
@@ -44,10 +46,6 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     if (!result.rowCount) {
       throw new NotFoundError('balasan komentar thread tidak ditemukan');
     }
-
-    const { id } = result.rows[0];
-
-    return id;
   }
 
   async checkCommentReplyOwnership(threadCommentReplyId, userId) {
@@ -66,7 +64,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
   async getCommentRepliesByThreadId(threadId) {
     const query = {
       text: `
-        SELECT thread_comment_replies.comment AS "commentId" ,thread_comment_replies.id, thread_comment_replies.content, thread_comment_replies."createdAt" AS "date", users.username, thread_comment_replies."deletedAt"
+        SELECT thread_comment_replies.comment AS comment ,thread_comment_replies.id, thread_comment_replies.content, thread_comment_replies."createdAt" AS "date", users.username, thread_comment_replies."deletedAt", thread_comment_replies.owner 
         FROM thread_comment_replies 
           LEFT JOIN thread_comments ON thread_comment_replies.comment = thread_comments.id
           LEFT JOIN users ON users.id = thread_comment_replies.owner 
@@ -78,7 +76,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
 
     const result = await this._pool.query(query);
 
-    return result?.rows;
+    return result?.rows?.map((e) => new ExistingThreadCommentReply(e));
   }
 }
 

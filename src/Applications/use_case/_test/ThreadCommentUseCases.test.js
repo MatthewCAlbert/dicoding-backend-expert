@@ -1,9 +1,9 @@
 const NewThreadComment = require('../../../Domains/comments/entities/NewThreadComment');
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
-const ThreadCommentUseCase = require('../ThreadCommentUseCase');
+const ThreadCommentUseCases = require('../ThreadCommentUseCases');
 
-describe('ThreadCommentUseCase', () => {
+describe('ThreadCommentUseCases', () => {
   /**
    * Menguji apakah use case mampu mengoskestrasikan langkah demi langkah dengan benar.
    */
@@ -37,13 +37,13 @@ describe('ThreadCommentUseCase', () => {
       }));
 
     /** creating use case instance */
-    const threadCommentUseCase = new ThreadCommentUseCase({
+    const threadCommentUseCases = new ThreadCommentUseCases({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
     });
 
     // Action
-    const addedThreadComment = await threadCommentUseCase.addThreadComment(useCasePayload);
+    const addedThreadComment = await threadCommentUseCases.addThreadComment(useCasePayload);
 
     // Assert
     expect(addedThreadComment).toStrictEqual(expectedThreadResult);
@@ -74,13 +74,13 @@ describe('ThreadCommentUseCase', () => {
       .mockImplementation(() => Promise.resolve());
 
     /** creating use case instance */
-    const threadCommentUseCase = new ThreadCommentUseCase({
+    const threadCommentUseCases = new ThreadCommentUseCases({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
     });
 
     // Action
-    await threadCommentUseCase.deleteThreadComment(useCasePayload);
+    await threadCommentUseCases.deleteThreadComment(useCasePayload);
 
     // Assert
     expect(mockThreadRepository.checkAvailibilityThreadById)
