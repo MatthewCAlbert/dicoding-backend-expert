@@ -14,7 +14,7 @@ class CommentLikeRepositoryPostgres extends CommentLikeRepository {
     const id = `comment-like-${this._idGenerator()}`;
 
     const query = {
-      text: 'INSERT INTO thread_comment_likes VALUES($1, $2, $3) RETURNING id, comment, owner',
+      text: 'INSERT INTO thread_comment_likes VALUES($1, $2, $3, $4) RETURNING id, comment, owner',
       values: [id, comment, owner],
     };
 
